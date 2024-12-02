@@ -1,0 +1,15 @@
+# Owlgebra
+
+A project to make the lastest math AI tools avialable and accessible for everyone, to enable fast prosperity for the ecosystem.
+This repo contains the nextjs frontend to make the backend from https://github.com/josojo/smarthammer accessible.
+
+## Development
+
+```cmd
+npm install
+```
+
+For the developer mode:
+```cmd
+npm run dev
+```
