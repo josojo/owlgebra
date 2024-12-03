@@ -4,7 +4,8 @@ import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
 
 export default function InputPage() {
-  const [theoremTitle, setTheoremTitle] = useState('IMO');
+  const [theoremTitle, setTheoremTitle] = useState('THEROEM-123');
+  const [env0code, setENV0Code] = useState('import Mathlib');
   const [prerequisites, setPrerequisites] = useState('["(n : ℕ)", "(oh0 : 0 < n)"]');
   const [goal, setGoal] = useState('Nat.gcd (21*n + 4) (14*n + 3) = 1');
   const [taskId, setTaskId] = useState(null);
@@ -12,6 +13,7 @@ export default function InputPage() {
   const handleSubmit = async () => {
     const requestData = {
       name: theoremTitle,
+      code_for_env_0: env0code,
       hypotheses: JSON.parse(prerequisites),
       goal: goal,
     };
@@ -62,12 +64,25 @@ export default function InputPage() {
 
             <div className="input-group">
               <label>
+                <span className="label-text">Lean Code before</span>
+                <textarea
+                  value={env0code}
+                  onChange={(e) => setENV0Code(e.target.value)}
+                  placeholder="Enter lean code before theorem to proof"
+                  rows="5"
+                  className="text-area-input"
+                />
+              </label>
+            </div>
+
+            <div className="input-group">
+              <label>
                 <span className="label-text">Assumptions</span>
                 <textarea
                   value={prerequisites}
                   onChange={(e) => setPrerequisites(e.target.value)}
-                  placeholder="Enter prerequisites as JSON array"
-                  rows="4"
+                  placeholder="Enter assumptions as JSON array"
+                  rows="5"
                   className="text-area-input"
                 />
               </label>
