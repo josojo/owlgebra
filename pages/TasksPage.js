@@ -325,33 +325,32 @@ export default function TasksPage() {
           border-bottom: 2px solid #eaeaea;
         }
         .task-details {
-          padding: 0.5rem;
-          width: 100%;
-          box-sizing: border-box;
+          padding: 1rem;
+          background: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin-bottom: 1.5rem;
         }
         .detail-item {
-          margin-bottom: 1.5rem;
-          max-width: 100%;
+          margin-bottom: 1rem;
+          padding: 0.5rem;
+          border-bottom: 1px solid #eaeaea;
         }
         .detail-item strong {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-size: 0.9rem;
-          color: #666;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          font-size: 1rem;
+          color: #333;
         }
         .status-failed {
           color: #dc3545;
-          font-weight: 500;
+          font-weight: bold;
         }
         .status-running {
           color: #00a651;
-          font-weight: 500;
+          font-weight: bold;
         }
         .status-finished {
           color: #0070f3;
-          font-weight: 500;
+          font-weight: bold;
         }
         .scroll-container {
           border: 1px solid #eaeaea;
@@ -359,18 +358,18 @@ export default function TasksPage() {
           background: #f8f9fa;
           max-height: 300px;
           overflow: auto;
-          width: 100%;
+          padding: 0.5rem;
         }
         .result-content, .logs-content {
-          margin: 0;
-          padding: 1rem;
-          white-space: pre-wrap;
           font-family: 'Monaco', 'Menlo', monospace;
           font-size: 0.9rem;
-          overflow-x: auto;
-          width: 100%;
-          box-sizing: border-box;
           line-height: 1.5;
+        }
+        .thinking-output {
+          background: #f5f5f5;
+          padding: 1rem;
+          border-radius: 4px;
+          border: 1px solid #eaeaea;
         }
         .task-content {
           position: relative;

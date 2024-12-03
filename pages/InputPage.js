@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
 
 export default function InputPage() {
-  const [theoremTitle, setTheoremTitle] = useState('THEROEM-123');
+  const [theoremTitle, setTheoremTitle] = useState('THEROEM123');
   const [env0code, setENV0Code] = useState('import Mathlib');
   const [prerequisites, setPrerequisites] = useState('["(n : ℕ)", "(oh0 : 0 < n)"]');
   const [goal, setGoal] = useState('Nat.gcd (21*n + 4) (14*n + 3) = 1');
@@ -38,6 +38,14 @@ export default function InputPage() {
     }
   };
 
+  const handleTheoremTitleChange = (e) => {
+    const value = e.target.value;
+    const regex = /^[a-zA-Z0-9]*$/; // Regex to allow only letters and numbers
+    if (regex.test(value)) {
+      setTheoremTitle(value);
+    }
+  };
+
   return (
     <Layout>
       <Head>
@@ -56,7 +64,7 @@ export default function InputPage() {
                 <input
                   type="text"
                   value={theoremTitle}
-                  onChange={(e) => setTheoremTitle(e.target.value)}
+                  onChange={handleTheoremTitleChange}
                   placeholder="Enter theorem title"
                 />
               </label>
