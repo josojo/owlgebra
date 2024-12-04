@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 export default function CurrentThinking({ taskId }) {
   const [currentThinking, setCurrentThinking] = useState('Awaiting input...');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Convert ANSI color codes to CSS colors
   const ansiToCSS = {
@@ -60,6 +61,7 @@ export default function CurrentThinking({ taskId }) {
 
   useEffect(() => {
     if (taskId) {
+      setIsLoading(true);
       streamLogs(taskId);
     }
   }, [taskId]);
@@ -75,39 +77,44 @@ export default function CurrentThinking({ taskId }) {
       const decoder = new TextDecoder();
       let buffer = '';
 
+      setIsLoading(false);
+
       while (true) {
         const { value, done } = await reader.read();
-        if (done) {
-          console.log('Stream complete');
-          break;
-        }
+        if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const jsonStr = line.substring(6);
-              const logData = JSON.parse(jsonStr);
-              if (logData.message) {
-                setCurrentThinking(prev => 
-                  prev === 'Awaiting input...' || prev === 'No tasks currently running...' ? 
-                  logData.message : 
-                  `${prev}\n${logData.message}`
-                );
+        // Batch update the thinking state
+        setCurrentThinking(prev => {
+          const newLines = lines
+            .filter(line => line.startsWith('data: '))
+            .map(line => {
+              try {
+                const jsonStr = line.substring(6);
+                const logData = JSON.parse(jsonStr);
+                return logData.message;
+              } catch (e) {
+                console.error('Error parsing log line:', e);
+                return null;
               }
-            } catch (e) {
-              console.error('Error parsing log line:', e);
-            }
-          }
-        }
+            })
+            .filter(Boolean);
+
+          if (newLines.length === 0) return prev;
+          
+          return prev === 'Awaiting input...' ? 
+            newLines.join('\n') : 
+            `${prev}\n${newLines.join('\n')}`;
+        });
       }
     } catch (error) {
       console.error('Error streaming logs:', error);
       setCurrentThinking(`Error streaming logs: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,7 +122,7 @@ export default function CurrentThinking({ taskId }) {
     <div className="current-thinking">
       <h2>Current Thinking</h2>
       <pre className="thinking-output">
-        {renderColoredText(currentThinking)}
+        {isLoading ? 'Loading logs...' : renderColoredText(currentThinking)}
       </pre>
 
       <style jsx>{`

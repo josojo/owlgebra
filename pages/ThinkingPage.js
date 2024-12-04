@@ -23,6 +23,7 @@ export default function ThinkingPage() {
       }
     };
 
+    fetchRunningTask();
     const intervalId = setInterval(fetchRunningTask, 1000);
     return () => clearInterval(intervalId);
   }, []);
