@@ -211,6 +211,7 @@ export default function TasksPage() {
     // Split the string into segments based on ANSI escape codes
     const segments = str.split(/\u001b\[(\d+)m/);
     let result = [];
+    let currentColor = 'inherit';
     
     for (let i = 0; i < segments.length; i++) {
       if (i % 2 === 0) {
@@ -218,19 +219,12 @@ export default function TasksPage() {
         if (segments[i]) {
           result.push({
             text: segments[i],
-            color: result.length > 0 ? result[result.length - 1].color : 'inherit'
+            color: currentColor
           });
         }
       } else {
-        // This is a color code
-        const colorCode = segments[i];
-        const nextText = segments[i + 1] || '';
-        if (nextText) {
-          result.push({
-            text: nextText,
-            color: ansiToCSS[colorCode] || 'inherit'
-          });
-        }
+        // This is a color code - update the current color
+        currentColor = ansiToCSS[segments[i]] || 'inherit';
       }
     }
     return result;
