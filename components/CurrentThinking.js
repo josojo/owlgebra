@@ -79,6 +79,8 @@ export default function CurrentThinking({ taskId }) {
 
       setIsLoading(false);
 
+      setCurrentThinking(''); // Reset the thinking state before streaming
+      
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -105,9 +107,8 @@ export default function CurrentThinking({ taskId }) {
 
           if (newLines.length === 0) return prev;
           
-          return prev === 'Awaiting input...' ? 
-            newLines.join('\n') : 
-            `${prev}\n${newLines.join('\n')}`;
+          // Simply append new lines, since we reset the initial state
+          return prev ? `${prev}\n${newLines.join('\n')}` : newLines.join('\n');
         });
       }
     } catch (error) {

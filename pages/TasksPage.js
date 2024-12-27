@@ -57,7 +57,7 @@ export default function TasksPage() {
           task_id: taskId,
           status: 'not_found',
           result: { error: 'Task not found' },
-          logs: ''
+          logs: {}
         });
         return;
       }
@@ -66,14 +66,30 @@ export default function TasksPage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      setSelectedTaskDetails(data);
+      const logsArray = data.logs.split('\n');
+      logsArray.pop(); // Take out the last element
+
+      // Parse logs by step
+      const logsByStep = logsArray.reduce((acc, logLine) => {
+        try {
+          const logData = JSON.parse(logLine);
+          const step = logData.step || 'unknown';
+          if (!acc[step]) acc[step] = [];
+          acc[step].push(logData.message);
+        } catch (e) {
+          console.error('Error parsing log line:', e);
+        }
+        return acc;
+      }, {});
+
+      setSelectedTaskDetails({ ...data, logs: logsByStep });
     } catch (error) {
       console.error('Error fetching task details:', error);
       setSelectedTaskDetails({
         task_id: taskId,
         status: 'error',
         result: { error: error.message },
-        logs: ''
+        logs: {}
       });
     }
   };
@@ -135,11 +151,51 @@ export default function TasksPage() {
       console.error('Error fetching tasks:', error);
     }
   };
+  // Add a CSS class for clickable steps styled as links
+const stepLinkStyle = {
+    cursor: 'pointer', // Change cursor to pointer
+    color: '#007bff', // Typical link color
+    textDecoration: 'underline', // Underline to mimic a link
+    transition: 'color 0.3s', // Smooth transition for hover effect
+};
+
+// Add hover effect
+const stepLinkHoverStyle = {
+    color: '#0056b3', // Darker shade on hover
+};
+
+
+  const StepsOverview = ({ logs, onStepClick }) => {
+    return (
+      <div className="steps-overview">
+        <h3>Logs:</h3>
+        <h4>Steps Overview</h4>
+        <ul>
+          {Object.keys(logs).map((step, index) => (
+            <li 
+            key={index} 
+            style={stepLinkStyle}
+            onMouseEnter={(e) => e.currentTarget.style.color = stepLinkHoverStyle.color}
+            onMouseLeave={(e) => e.currentTarget.style.color = stepLinkStyle.color}
+            onClick={() => onStepClick(step)}>
+              {step}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
 
   const renderTaskDetails = () => {
+    const [selectedStep, setSelectedStep] = useState(null);
+
     if (!selectedTaskDetails) {
       return <p>No task details available</p>;
     }
+
+    const handleStepClick = (step) => {
+      setSelectedStep(step);
+    };
 
     return (
       <div className="task-details">
@@ -164,17 +220,13 @@ export default function TasksPage() {
             </div>
           </div>
         )}
-        {selectedTaskDetails.logs && (
+        <StepsOverview logs={selectedTaskDetails.logs} onStepClick={handleStepClick} />
+        {selectedStep && (
           <div className="detail-item">
-            <strong>Logs:</strong>
+            <strong>Logs for Step: {selectedStep}</strong>
             <div className="thinking-output">
               <pre>
-                {selectedTaskDetails.logs.split('\n').map((line, index) => {
-                  let message = line;
-                  try {
-                    const logData = JSON.parse(line);
-                    message = logData.message || line;
-                  } catch (e) {}
+                {selectedTaskDetails.logs[selectedStep].map((message, index) => {
                   const segments = parseAnsiString(message);
                   return (
                     <div key={index}>
