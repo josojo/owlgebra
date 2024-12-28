@@ -99,7 +99,7 @@ export default function InputPage() {
 
             <div className="input-group">
               <label>
-                <span className="label-text">LEAN CODE BEFORE</span>
+                <span className="label-text">LEAN CODE BEFORE THEOREM</span>
                 <textarea
                   className="text-area-input"
                   value={env0code}
@@ -312,6 +312,7 @@ export default function InputPage() {
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
           padding: 2rem;
           width: 100%;
+          margin-bottom: 2rem;
         }
         .solver-section {
           margin-bottom: 2rem;
@@ -346,15 +347,18 @@ export default function InputPage() {
           font-weight: 400;
         }
         .section-title {
-          font-size: 1.5rem;
-          font-weight: 600;
+          font-size: 1.8rem;
+          font-weight: 700;
           color: #333;
-          margin: 0 0 2rem 0;
+          margin: 0 0 1.5rem 0;
           padding-bottom: 0.75rem;
           border-bottom: 2px solid #eaeaea;
         }
         .input-group {
           margin-bottom: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          width: 100%;
         }
         .inline-label {
           display: flex;
@@ -363,22 +367,22 @@ export default function InputPage() {
           width: 100%;
         }
         .label-text {
-          font-size: 0.9rem;
-          font-weight: 500;
-          color: #666;
-          margin-bottom: 0.5rem; /* Add margin for line break */
+          font-size: 1rem;
+          font-weight: 600;
+          color: #555;
+          margin-bottom: 0.5rem;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          white-space: nowrap;
         }
         input, select, .text-area-input {
-          flex: 0 0 200px; /* Fixed width for consistency */
           padding: 0.75rem;
-          border: 1px solid #eaeaea;
+          border: 1px solid #ddd;
           border-radius: 6px;
           font-size: 1rem;
           transition: all 0.2s ease;
           background: #f8f9fa;
+          width: 100%;
+          box-sizing: border-box;
         }
         .text-area-input {
           width: 100%; /* Full width for non-solver config fields */
@@ -398,7 +402,7 @@ export default function InputPage() {
         .button-container {
           margin-top: 2rem;
           display: flex;
-          justify-content: flex-end;
+          justify-content: center;
         }
         .submit-button {
           background-color: #0070f3;
@@ -466,6 +470,46 @@ export default function InputPage() {
           border-radius: 8px;
           padding: 1rem;
           margin-bottom: 1.5rem;
+        }
+        .solver-section {
+          margin-bottom: 2rem;
+        }
+        .solver-section-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 1rem;
+        }
+        .input-group {
+          margin-bottom: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+        }
+        .inline-label {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+        }
+        .solver-config .input-group input,
+        .solver-config .input-group select {
+          width: 100%;
+          max-width: 300px;
+          padding: 0.75rem;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 1rem;
+          transition: all 0.2s ease;
+          background: #f8f9fa;
+          box-sizing: border-box;
+        }
+        .solver-config .input-group input:focus,
+        .solver-config .input-group select:focus {
+          outline: none;
+          border-color: #0070f3;
+          box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
+          background: white;
         }
       `}</style>
     </Layout>
