@@ -1,7 +1,17 @@
+"use client";
+
 import Head from 'next/head';
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
+
+// Define the AIForHypothesesProof enum using a plain object
+const AIForHypothesesProof = {
+  CLAUDE: 'Claude',
+  OPENAI_O1: 'OpenAI(o1)',
+  OPENAI_4O: 'OpenAI(4o)',
+  DEEPSEEK_1_5: 'DeepSeek1.5',
+};
 
 export default function InputPage() {
   const [theoremTitle, setTheoremTitle] = useState('THEROEM123');
@@ -9,13 +19,30 @@ export default function InputPage() {
   const [prerequisites, setPrerequisites] = useState('["(n : ℕ)", "(oh0 : 0 < n)"]');
   const [goal, setGoal] = useState('Nat.gcd (21*n + 4) (14*n + 3) = 1');
   const [taskId, setTaskId] = useState(null);
+  const [showSolverConfig, setShowSolverConfig] = useState(false);
+  const [maxIterationHypothesesProof, setMaxIterationHypothesesProof] = useState(3);
+  const [maxCorrectionIterationHypothesesProof, setMaxCorrectionIterationHypothesesProof] = useState(3);
+  const [maxIterationFinalProof, setMaxIterationFinalProof] = useState(5);
+  const [maxCorrectionIterationFinalProof, setMaxCorrectionIterationFinalProof] = useState(5);
+  const [aiForHypothesesGeneration, setAIForHypothesesGeneration] = useState(AIForHypothesesProof.CLAUDE);
+  const [aiForHypothesesProof, setAIForHypothesesProof] = useState(AIForHypothesesProof.DEEPSEEK_1_5);
+  const [aiForFinalProof, setAIForFinalProof] = useState(AIForHypothesesProof.DEEPSEEK_1_5);
+
 
   const handleSubmit = async () => {
     const requestData = {
       name: theoremTitle,
-      code_for_env_0: env0code,
       hypotheses: JSON.parse(prerequisites),
       goal: goal,
+      ai_for_hypotheses_generation: aiForHypothesesGeneration,
+      ai_for_hyptheses_proof: aiForHypothesesProof,
+      ai_for_final_proof: aiForFinalProof,
+      max_iteration_hypotheses_proof: maxIterationHypothesesProof,
+      max_correction_iteration_hypotheses_proof: maxCorrectionIterationHypothesesProof,
+      max_iteration_final_proof: maxIterationFinalProof,
+      max_correction_iteration_final_proof: maxCorrectionIterationFinalProof,
+      verbose: true,
+      code_for_env_0: env0code || "import Mathlib",
     };
 
     try {
@@ -60,7 +87,7 @@ export default function InputPage() {
             
             <div className="input-group">
               <label>
-                <span className="label-text">Your Theorem Name</span>
+                <span className="label-text">Theorem Name</span>
                 <input
                   type="text"
                   value={theoremTitle}
@@ -72,13 +99,11 @@ export default function InputPage() {
 
             <div className="input-group">
               <label>
-                <span className="label-text">Lean Code before</span>
+                <span className="label-text">LEAN CODE BEFORE</span>
                 <textarea
+                  className="text-area-input"
                   value={env0code}
                   onChange={(e) => setENV0Code(e.target.value)}
-                  placeholder="Enter lean code before theorem to proof"
-                  rows="5"
-                  className="text-area-input"
                 />
               </label>
             </div>
@@ -107,6 +132,114 @@ export default function InputPage() {
                 />
               </label>
             </div>
+
+            <div className="collapsible-text" onClick={() => setShowSolverConfig(!showSolverConfig)}>
+              {showSolverConfig ? 'Hide Solver Configuration' : 'Show Solver Configuration'}
+            </div>
+
+            {showSolverConfig && (
+              <div className="solver-config">
+                {/* Section 1: AI for Hypotheses Generation */}
+                <div className="solver-section">
+                  <h3 className="solver-section-title">Hypotheses Generation</h3>
+                  <div className="input-group">
+                    <label className="inline-label">
+                      <span className="label-text">AI for Hypotheses Generation</span>
+                      <select
+                        value={aiForHypothesesGeneration}
+                        onChange={(e) => setAIForHypothesesGeneration(e.target.value)}
+                      >
+                        {Object.values(AIForHypothesesProof).map((ai) => (
+                          <option key={ai} value={ai}>
+                            {ai}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Section 2: Hypotheses Proof */}
+                <div className="solver-section">
+                  <h3 className="solver-section-title">Hypotheses Proof</h3>
+                  <div className="input-group">
+                    <label className="inline-label">
+                      <span className="label-text">AI for Hypotheses Proof</span>
+                      <select
+                        value={aiForHypothesesProof}
+                        onChange={(e) => setAIForHypothesesProof(e.target.value)}
+                      >
+                        {Object.values(AIForHypothesesProof).map((ai) => (
+                          <option key={ai} value={ai}>
+                            {ai}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <div className="input-group">
+                    <label className="inline-label">
+                      <span className="label-text">Max Iteration Hypotheses Proof</span>
+                      <input
+                        type="number"
+                        value={maxIterationHypothesesProof}
+                        onChange={(e) => setMaxIterationHypothesesProof(Number(e.target.value))}
+                      />
+                    </label>
+                  </div>
+                  <div className="input-group">
+                    <label className="inline-label">
+                      <span className="label-text">Max Correction Iteration Hypotheses Proof</span>
+                      <input
+                        type="number"
+                        value={maxCorrectionIterationHypothesesProof}
+                        onChange={(e) => setMaxCorrectionIterationHypothesesProof(Number(e.target.value))}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Section 3: Final Proof */}
+                <div className="solver-section">
+                  <h3 className="solver-section-title">Final Proof</h3>
+                  <div className="input-group">
+                    <label className="inline-label">
+                      <span className="label-text">AI for Final Proof</span>
+                      <select
+                        value={aiForFinalProof}
+                        onChange={(e) => setAIForFinalProof(e.target.value)}
+                      >
+                        {Object.values(AIForHypothesesProof).map((ai) => (
+                          <option key={ai} value={ai}>
+                            {ai}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <div className="input-group">
+                    <label className="inline-label">
+                      <span className="label-text">Max Iteration Final Proof</span>
+                      <input
+                        type="number"
+                        value={maxIterationFinalProof}
+                        onChange={(e) => setMaxIterationFinalProof(Number(e.target.value))}
+                      />
+                    </label>
+                  </div>
+                  <div className="input-group">
+                    <label className="inline-label">
+                      <span className="label-text">Max Correction Iteration Final Proof</span>
+                      <input
+                        type="number"
+                        value={maxCorrectionIterationFinalProof}
+                        onChange={(e) => setMaxCorrectionIterationFinalProof(Number(e.target.value))}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="button-container">
               <button onClick={handleSubmit} className="submit-button">
@@ -180,6 +313,15 @@ export default function InputPage() {
           padding: 2rem;
           width: 100%;
         }
+        .solver-section {
+          margin-bottom: 2rem;
+        }
+        .solver-section-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 1rem;
+        }
         .vision-box {
           background: white;
           border-radius: 8px;
@@ -214,17 +356,23 @@ export default function InputPage() {
         .input-group {
           margin-bottom: 1.5rem;
         }
+        .inline-label {
+          display: flex;
+          align-items: center;
+          justify-content: space-between; /* Align items to the right */
+          width: 100%;
+        }
         .label-text {
-          display: block;
           font-size: 0.9rem;
           font-weight: 500;
           color: #666;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.5rem; /* Add margin for line break */
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          white-space: nowrap;
         }
-        input, .text-area-input {
-          width: 100%;
+        input, select, .text-area-input {
+          flex: 0 0 200px; /* Fixed width for consistency */
           padding: 0.75rem;
           border: 1px solid #eaeaea;
           border-radius: 6px;
@@ -232,24 +380,21 @@ export default function InputPage() {
           transition: all 0.2s ease;
           background: #f8f9fa;
         }
-        
         .text-area-input {
+          width: 100%; /* Full width for non-solver config fields */
           min-height: 100px;
           resize: vertical;
           font-family: inherit;
         }
-
-        input:focus, .text-area-input:focus {
+        input:focus, select:focus, .text-area-input:focus {
           outline: none;
           border-color: #0070f3;
           box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
           background: white;
         }
-
         input::placeholder, .text-area-input::placeholder {
           color: #aaa;
         }
-        
         .button-container {
           margin-top: 2rem;
           display: flex;
@@ -303,6 +448,24 @@ export default function InputPage() {
           max-width: 100%;
           height: auto;
           border-radius: 8px;
+        }
+        .collapsible-text {
+          color: #0070f3;
+          cursor: pointer;
+          font-size: 0.9rem;
+          font-weight: 500;
+          margin-bottom: 1rem;
+          text-align: left;
+          text-decoration: underline;
+        }
+        .collapsible-text:hover {
+          color: #005bb5;
+        }
+        .solver-config {
+          background: #f8f9fa;
+          border-radius: 8px;
+          padding: 1rem;
+          margin-bottom: 1.5rem;
         }
       `}</style>
     </Layout>
