@@ -492,6 +492,20 @@ export default function InputPage() {
           justify-content: space-between;
           width: 100%;
         }
+        .solver-config .label-text {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: #555;
+          margin-bottom: 0.5rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .solver-config .input-group {
+          margin-bottom: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+        }
         .solver-config .input-group input,
         .solver-config .input-group select {
           width: 100%;
