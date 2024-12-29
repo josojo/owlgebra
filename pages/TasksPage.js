@@ -318,8 +318,8 @@ const stepLinkHoverStyle = {
             <div className="tasks-list">
               <TaskList tasks={pendingTasks} color="#0070f3" title="Pending" />
               <TaskList tasks={runningTasks} color="#00a651" title="Running" />
-              <TaskList tasks={failedTasks} color="#dc3545" title="Failed" />
               <TaskList tasks={finishedTasks} color="#6c757d" title="Finished" />
+              <TaskList tasks={failedTasks} color="#dc3545" title="Failed" />
             </div>
           </div>
         </div>
