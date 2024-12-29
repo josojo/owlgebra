@@ -143,10 +143,10 @@ export default function TasksPage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setPendingTasks(data.pending_tasks.slice(-3));
-      setRunningTasks(data.running_tasks.slice(-3));
-      setFailedTasks(data.failed_tasks.slice(-3));
-      setFinishedTasks(data.finished_tasks.slice(-3));
+      setPendingTasks(data.pending_tasks);
+      setRunningTasks(data.running_tasks);
+      setFailedTasks(data.failed_tasks);
+      setFinishedTasks(data.finished_tasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
@@ -344,6 +344,8 @@ const stepLinkHoverStyle = {
           left: 0;
           top: 80px;
           background: #f5f7fa;
+          height: calc(100vh - 80px);
+          overflow-y: hidden;
         }
         .right-column {
           width: 60%;
@@ -475,7 +477,29 @@ const stepLinkHoverStyle = {
         }
         .tasks-list {
           margin-top: 1rem;
+          max-height: calc(100vh - 250px);
+          overflow-y: auto;
+          padding-right: 0.5rem;
         }
+
+        .tasks-list::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .tasks-list::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+
+        .tasks-list::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 4px;
+        }
+
+        .tasks-list::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+
         h3 {
           font-size: 1.1rem;
           font-weight: 500;
