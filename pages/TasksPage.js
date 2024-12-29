@@ -4,8 +4,6 @@ import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-
 export default function TasksPage() {
   const router = useRouter();
   const [pendingTasks, setPendingTasks] = useState([]);
@@ -15,6 +13,7 @@ export default function TasksPage() {
   const [selectedTaskDetails, setSelectedTaskDetails] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStep, setSelectedStep] = useState(null);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -56,7 +55,7 @@ export default function TasksPage() {
     
     try {
       console.log("fetching task details for", taskId);
-      const response = await fetch(`${API_BASE_URL}/status/${taskId}`);
+      const response = await fetch(`http://127.0.0.1:8000/status/${taskId}`);
       const data = await response.json();
       
       if (response.status === 404) {
@@ -146,7 +145,7 @@ export default function TasksPage() {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/pending-tasks/`);
+      const response = await fetch('http://127.0.0.1:8000/pending-tasks/');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -195,8 +194,6 @@ const stepLinkHoverStyle = {
   };
 
   const renderTaskDetails = () => {
-    const [selectedStep, setSelectedStep] = useState(null);
-
     if (!selectedTaskDetails) {
       return <p>No task details available</p>;
     }
@@ -229,7 +226,7 @@ const stepLinkHoverStyle = {
           </div>
         )}
         <StepsOverview logs={selectedTaskDetails.logs} onStepClick={handleStepClick} />
-        {selectedStep && (
+        {selectedStep && selectedTaskDetails.logs[selectedStep] && (
           <div className="detail-item">
             <strong>Logs for Step: {selectedStep}</strong>
             <div className="thinking-output">
