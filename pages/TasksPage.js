@@ -2,8 +2,10 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
+import { useRouter } from 'next/router';
 
 export default function TasksPage() {
+  const router = useRouter();
   const [pendingTasks, setPendingTasks] = useState([]);
   const [runningTasks, setRunningTasks] = useState([]);
   const [failedTasks, setFailedTasks] = useState([]);
@@ -32,17 +34,20 @@ export default function TasksPage() {
   }, [selectedTaskId]);
 
   useEffect(() => {
-    if (!selectedTaskId) {
+    if (router.query.taskId && router.query.taskId !== selectedTaskId) {
+      setSelectedTaskId(router.query.taskId);
+    } else if (!selectedTaskId) {
       const firstTask = runningTasks[0] || failedTasks[0] || finishedTasks[0];
       if (firstTask) {
         const taskIdMatch = firstTask.match(/^([^:]+)/);
         const taskId = taskIdMatch ? taskIdMatch[1] : null;
         if (taskId) {
           setSelectedTaskId(taskId);
+          router.push(`/TasksPage?taskId=${taskId}`, undefined, { shallow: true });
         }
       }
     }
-  }, [runningTasks, failedTasks, finishedTasks, selectedTaskId]);
+  }, [runningTasks, failedTasks, finishedTasks, selectedTaskId, router.query.taskId]);
 
   const fetchTaskDetails = async (taskId) => {
     if (!taskId) return;
@@ -99,6 +104,7 @@ export default function TasksPage() {
     const taskId = taskIdMatch ? taskIdMatch[1] : null;
     if (taskId) {
       setSelectedTaskId(taskId);
+      router.push(`/TasksPage?taskId=${taskId}`, undefined, { shallow: true });
       fetchTaskDetails(taskId);
     }
   };

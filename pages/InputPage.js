@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
+import { useRouter } from 'next/router';
 
 // Define the AIForHypothesesProof enum using a plain object
 const AIForHypothesesProof = {
@@ -14,6 +15,7 @@ const AIForHypothesesProof = {
 };
 
 export default function InputPage() {
+  const router = useRouter();
   const [theoremTitle, setTheoremTitle] = useState('THEROEM123');
   const [env0code, setENV0Code] = useState('import Mathlib');
   const [prerequisites, setPrerequisites] = useState('["(n : ℕ)", "(oh0 : 0 < n)"]');
@@ -70,6 +72,12 @@ export default function InputPage() {
     const regex = /^[a-zA-Z0-9]*$/; // Regex to allow only letters and numbers
     if (regex.test(value)) {
       setTheoremTitle(value);
+    }
+  };
+
+  const handleTaskClick = () => {
+    if (taskId) {
+        router.push(`/TasksPage?taskId=${taskId}`, undefined, { shallow: true });
     }
   };
 
@@ -248,7 +256,12 @@ export default function InputPage() {
             </div>
 
             {taskId && (
-              <div className="task-info">
+              <div 
+                className="task-info"
+                onClick={handleTaskClick}
+                role="button"
+                tabIndex={0}
+              >
                 <strong>Task Created:</strong>
                 <span className="task-id">{taskId}</span>
               </div>
@@ -428,6 +441,15 @@ export default function InputPage() {
           background: #f0f7ff;
           border-radius: 6px;
           border: 1px solid #cce4ff;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .task-info:hover {
+          background: #e0f0ff;
+          transform: translateY(-1px);
+        }
+        .task-info:active {
+          transform: translateY(0);
         }
         .task-info strong {
           display: block;
