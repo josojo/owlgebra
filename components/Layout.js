@@ -24,9 +24,6 @@ export default function Layout({ children }) {
             <Link href="/TasksPage" className="navLink">
               Job Overview
             </Link>
-            <Link href="/ThinkingPage" className="navLink">
-              Current Thinking
-            </Link>
           </nav>
         </div>
       </header>
