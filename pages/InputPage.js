@@ -14,6 +14,8 @@ const AIForHypothesesProof = {
   DEEPSEEK_1_5: 'DeepSeek1.5',
 };
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
 export default function InputPage() {
   const router = useRouter();
   const [theoremTitle, setTheoremTitle] = useState('THEROEM123');
@@ -48,7 +50,7 @@ export default function InputPage() {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/prove/', {
+      const response = await fetch(`${API_BASE_URL}/prove/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

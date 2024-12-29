@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
 export default function CurrentThinking({ taskId }) {
   const [currentThinking, setCurrentThinking] = useState('Awaiting input...');
   const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +70,7 @@ export default function CurrentThinking({ taskId }) {
 
   const streamLogs = async (taskId) => {
     try {
-      const response = await fetch(`http://localhost:8000/logs/${taskId}`);
+      const response = await fetch(`${API_BASE_URL}/logs/${taskId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
