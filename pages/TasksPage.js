@@ -388,7 +388,7 @@ export default function TasksPage() {
       <div className="task-details">
         <div className="task-header">
           <div className="task-header-right">
-            <h3>Task Details</h3>
+            <h3>Task Details {selectedTaskDetails.task_id}</h3>
             <StatusBadge status={selectedTaskDetails.status} />
           </div>
         
@@ -398,9 +398,6 @@ export default function TasksPage() {
           <div className="detail-item result-section">
             <div className="result-container">
               {formatResult(selectedTaskDetails.result)}
-            </div>
-            <div className="task-id-badge">
-                ID: {selectedTaskDetails.task_id}
             </div>
           </div>
         )}
