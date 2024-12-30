@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
+import { Code } from '@geist-ui/core';
 
 export default function TasksPage() {
   const router = useRouter();
@@ -202,29 +203,107 @@ const stepLinkHoverStyle = {
       setSelectedStep(step);
     };
 
+    // Format the result object for better display
+    const formatResult = (result) => {
+      if (result.error) {
+        return (
+          <div className="error-result">
+            <span className="error-icon">⚠️</span>
+            {result.error}
+          </div>
+        );
+      }
+
+      return (
+        <div className="result-sections">
+          {/* Goal Section */}
+          {result.goal && (
+            <div className="result-section">
+              <h4>Goal</h4>
+              <Code block name="lean">
+                {result.goal}
+              </Code>
+            </div>
+          )}
+
+          {/* Theoretical Hypotheses Section */}
+          {result.theoretical_hypotheses && result.theoretical_hypotheses.length > 0 && (
+            <div className="result-section">
+              <h4>Theoretical Hypotheses</h4>
+              <div className="hypotheses-grid">
+                {result.theoretical_hypotheses.map((hyp, index) => (
+                  <Code 
+                    key={index} 
+                    block 
+                    name="lean"
+                    className="theoretical"
+                  >
+                    {hyp.hypothesis}
+                  </Code>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Proven Hypotheses Section */}
+          {result.proven_hypotheses && result.proven_hypotheses.length > 0 && (
+            <div className="result-section">
+              <h4>Proven Hypotheses</h4>
+              <div className="hypotheses-grid">
+                {result.proven_hypotheses.map((hyp, index) => (
+                  <Code 
+                    key={index} 
+                    block 
+                    name="lean"
+                    className="proven"
+                  >
+                    {`${hyp.hypothesis}${hyp.proof ? '\n\n' + hyp.proof : ''}`}
+                  </Code>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Other Results */}
+          {Object.entries(result)
+            .filter(([key]) => !['goal', 'theoretical_hypotheses', 'proven_hypotheses'].includes(key))
+            .map(([key, value]) => (
+              <div key={key} className="result-section">
+                <h4>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
+                <div className="result-value">
+                  {typeof value === 'object' 
+                    ? JSON.stringify(value, null, 2)
+                    : value}
+                </div>
+              </div>
+            ))}
+        </div>
+      );
+    };
+
     return (
       <div className="task-details">
-        <h3>Task Details</h3>
-        <div className="detail-item">
-          <strong>Task ID:</strong> 
-          <span>{selectedTaskDetails.task_id}</span>
+        <div className="task-header">
+          <div className="task-header-left">
+            <h3>Task Details</h3>
+            <span className={`status-badge status-${selectedTaskDetails.status}`}>
+              {selectedTaskDetails.status}
+            </span>
+          </div>
+          <div className="task-id-badge">
+            ID: {selectedTaskDetails.task_id}
+          </div>
         </div>
-        <div className="detail-item">
-          <strong>Status:</strong> 
-          <span className={`status-${selectedTaskDetails.status}`}>
-            {selectedTaskDetails.status}
-          </span>
-        </div>
+
         {selectedTaskDetails.result && (
-          <div className="detail-item">
-            <strong>Result:</strong>
-            <div className="scroll-container">
-              <pre className="result-content">
-                {selectedTaskDetails.result.error || JSON.stringify(selectedTaskDetails.result, null, 2)}
-              </pre>
+          <div className="detail-item result-section">
+            <h4>Result</h4>
+            <div className="result-container">
+              {formatResult(selectedTaskDetails.result)}
             </div>
           </div>
         )}
+
         <StepsOverview logs={selectedTaskDetails.logs} onStepClick={handleStepClick} />
         {selectedStep && selectedTaskDetails.logs[selectedStep] && (
           <div className="detail-item">
@@ -590,6 +669,226 @@ const stepLinkHoverStyle = {
         }
         .clear-search:hover {
           color: #333;
+        }
+        .task-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 1rem;
+          margin-bottom: 1rem;
+          border-bottom: 2px solid #eaeaea;
+        }
+
+        .task-header-left {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .task-header h3 {
+          margin: 0;
+          font-size: 1.25rem;
+          color: #333;
+        }
+
+        .task-id-badge {
+          background: #f0f0f0;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          font-family: monospace;
+          font-size: 0.9rem;
+          color: #666;
+        }
+
+        .status-badge {
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 500;
+          text-transform: uppercase;
+        }
+
+        .status-badge.status-running {
+          background-color: #e6fff0;
+          color: #00a651;
+        }
+
+        .status-badge.status-failed {
+          background-color: #ffe6e6;
+          color: #dc3545;
+        }
+
+        .status-badge.status-finished {
+          background-color: #e6f3ff;
+          color: #0070f3;
+        }
+
+        .result-section {
+          background: #fff;
+          border-radius: 6px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+          margin-bottom: 1.5rem;
+        }
+
+        .result-section h4 {
+          margin: 0 0 1rem 0;
+          color: #333;
+          font-size: 1rem;
+        }
+
+        .result-container {
+          background: #f8f9fa;
+          border-radius: 4px;
+          padding: 1rem;
+        }
+
+        .result-row {
+          display: flex;
+          padding: 0.5rem 0;
+          border-bottom: 1px solid #eee;
+        }
+
+        .result-row:last-child {
+          border-bottom: none;
+        }
+
+        .result-key {
+          font-weight: 500;
+          color: #666;
+          width: 150px;
+          flex-shrink: 0;
+        }
+
+        .result-value {
+          color: #333;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        .error-result {
+          color: #dc3545;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .error-icon {
+          font-size: 1.2rem;
+        }
+
+        .result-sections {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .code-block {
+          position: relative;
+          border-radius: 6px;
+          overflow: hidden;
+          margin: 0.5rem 0;
+        }
+
+        .code-block pre {
+          margin: 0;
+          padding: 1rem;
+          overflow-x: auto;
+        }
+
+        .code-block code {
+          font-family: 'JetBrains Mono', 'Fira Code', monospace;
+          font-size: 0.9rem;
+          line-height: 1.5;
+        }
+
+        .lean-block {
+          background: #1e1e1e;
+          color: #d4d4d4;
+          border: 1px solid #333;
+        }
+
+        .lean-block.theoretical {
+          border-left: 4px solid #7c4dff;
+        }
+
+        .lean-block.proven {
+          border-left: 4px solid #00c853;
+        }
+
+        .block-header {
+          background: #2d2d2d;
+          color: #fff;
+          padding: 0.5rem 1rem;
+          font-size: 0.8rem;
+          font-weight: 500;
+          border-bottom: 1px solid #333;
+        }
+
+        .hypotheses-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 1rem;
+          margin-top: 0.5rem;
+        }
+
+        .result-section h4 {
+          color: #333;
+          font-size: 1.1rem;
+          margin-bottom: 1rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 2px solid #eaeaea;
+        }
+
+        .result-value {
+          background: #f8f9fa;
+          padding: 1rem;
+          border-radius: 4px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.9rem;
+          line-height: 1.5;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        /* Syntax highlighting colors */
+        .lean-block .keyword { color: #569cd6; }
+        .lean-block .type { color: #4ec9b0; }
+        .lean-block .variable { color: #9cdcfe; }
+        .lean-block .operator { color: #d4d4d4; }
+        .lean-block .comment { color: #6a9955; }
+
+        .hypotheses-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 1rem;
+          margin-top: 0.5rem;
+        }
+
+        .result-section h4 {
+          color: #333;
+          font-size: 1.1rem;
+          margin-bottom: 1rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 2px solid #eaeaea;
+        }
+
+        .result-value {
+          background: #f8f9fa;
+          padding: 1rem;
+          border-radius: 4px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.9rem;
+          line-height: 1.5;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        :global(.theoretical) {
+          border-left: 4px solid #7c4dff !important;
+        }
+
+        :global(.proven) {
+          border-left: 4px solid #00c853 !important;
         }
       `}</style>
     </Layout>
