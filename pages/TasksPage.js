@@ -364,7 +364,7 @@ export default function TasksPage() {
 
             {/* Other Results */}
             {Object.entries(result)
-              .filter(([key]) => !['goal', 'theoretical_hypotheses', 'proven_hypotheses'].includes(key))
+              .filter(([key]) => !['goal', 'theoretical_hypotheses', 'proven_hypotheses', 'name'].includes(key))
               .map(([key, value]) => (
                 <div key={key} className="result-section">
                   <h4>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
