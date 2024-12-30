@@ -4,6 +4,18 @@ import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 import { Code } from '@geist-ui/core';
+import { CheckCircle, XCircle, Clock, Play } from '@geist-ui/icons';
+
+const stepLinkStyle = {
+  cursor: 'pointer',
+  color: '#0070f3',
+  marginBottom: '8px',
+  fontSize: '0.9rem'
+};
+
+const stepLinkHoverStyle = {
+  color: '#0051b3'
+};
 
 export default function TasksPage() {
   const router = useRouter();
@@ -117,9 +129,9 @@ export default function TasksPage() {
     );
   };
 
-  const TaskList = ({ tasks, color, title }) => (
+  const TaskList = ({ tasks, title }) => (
     <div className="task-list-container">
-      <ul style={{ color }}>
+      <ul>
         {filterTasks(tasks).map((task, index) => {
           const taskIdMatch = task.match(/^([^:]+)/);
           const taskId = taskIdMatch ? taskIdMatch[1] : null;
@@ -132,10 +144,8 @@ export default function TasksPage() {
               className={`task-item ${isSelected ? 'selected' : ''}`}
             >
               <div className="task-content">
-                <div className="task-id">{taskId}</div>
-                <div className={`task-label ${title.toLowerCase().replace(' ', '-')}`}>
-                  {title}
-                </div>
+                <div className="task-id">{taskId}-{title.toLowerCase()}</div>
+                <StatusBadge status={title} />
               </div>
             </li>
           );
@@ -159,19 +169,73 @@ export default function TasksPage() {
       console.error('Error fetching tasks:', error);
     }
   };
-  // Add a CSS class for clickable steps styled as links
-const stepLinkStyle = {
-    cursor: 'pointer', // Change cursor to pointer
-    color: '#007bff', // Typical link color
-    textDecoration: 'underline', // Underline to mimic a link
-    transition: 'color 0.3s', // Smooth transition for hover effect
-};
 
-// Add hover effect
-const stepLinkHoverStyle = {
-    color: '#0056b3', // Darker shade on hover
-};
+  const StatusBadge = ({ status }) => {
+    const getStatusInfo = (status) => {
+      switch (status.toLowerCase()) {
+        case 'finished':
+          return {
+            icon: <CheckCircle size={16} />,
+            color: '#00c853',
+            background: '#e6fff0'
+          };
+        case 'failed':
+          return {
+            icon: <XCircle size={16} />,
+            color: '#dc3545',
+            background: '#ffe6e6'
+          };
+        case 'pending':
+          return {
+            icon: <Clock size={16} />,
+            color: '#0070f3',
+            background: '#e6f3ff'
+          };
+        case 'running':
+          return {
+            icon: <Play size={16} />,
+            color: '#00a651',
+            background: '#e6fff0'
+          };
+        default:
+          return {
+            icon: <Clock size={16} />,
+            color: '#6c757d',
+            background: '#f8f9fa'
+          };
+      }
+    };
 
+    const statusInfo = getStatusInfo(status);
+
+    return (
+      <div className="status-badge">
+        <span className="status-icon">{statusInfo.icon}</span>
+        <span className="status-text">{status}</span>
+        <style jsx>{`
+          .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: ${statusInfo.color};
+            background: ${statusInfo.background};
+            border: 1px solid ${statusInfo.color}20;
+          }
+          .status-icon {
+            display: flex;
+            align-items: center;
+          }
+          .status-text {
+            text-transform: capitalize;
+          }
+        `}</style>
+      </div>
+    );
+  };
 
   const StepsOverview = ({ logs, onStepClick }) => {
     return (
@@ -181,15 +245,47 @@ const stepLinkHoverStyle = {
         <ul>
           {Object.keys(logs).map((step, index) => (
             <li 
-            key={index} 
-            style={stepLinkStyle}
-            onMouseEnter={(e) => e.currentTarget.style.color = stepLinkHoverStyle.color}
-            onMouseLeave={(e) => e.currentTarget.style.color = stepLinkStyle.color}
-            onClick={() => onStepClick(step)}>
+              key={index} 
+              style={stepLinkStyle}
+              onMouseEnter={(e) => e.currentTarget.style.color = stepLinkHoverStyle.color}
+              onMouseLeave={(e) => e.currentTarget.style.color = stepLinkStyle.color}
+              onClick={() => onStepClick(step)}
+            >
               {step}
             </li>
           ))}
         </ul>
+        <style jsx>{`
+          .steps-overview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #eaeaea;
+          }
+          
+          .steps-overview h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #333;
+          }
+          
+          .steps-overview h4 {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+            color: #666;
+          }
+          
+          .steps-overview ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+          }
+          
+          .steps-overview li {
+            padding: 4px 0;
+          }
+        `}</style>
       </div>
     );
   };
@@ -216,67 +312,74 @@ const stepLinkHoverStyle = {
 
       return (
         <div className="result-sections">
-          {/* Goal Section */}
-          {result.goal && (
-            <div className="result-section">
-              <h4>Goal</h4>
-              <Code block name="lean">
-                {result.goal}
-              </Code>
-            </div>
-          )}
-
-          {/* Theoretical Hypotheses Section */}
-          {result.theoretical_hypotheses && result.theoretical_hypotheses.length > 0 && (
-            <div className="result-section">
-              <h4>Theoretical Hypotheses</h4>
-              <div className="hypotheses-grid">
-                {result.theoretical_hypotheses.map((hyp, index) => (
-                  <Code 
-                    key={index} 
-                    block 
-                    name="lean"
-                    className="theoretical"
-                  >
-                    {hyp.hypothesis}
-                  </Code>
-                ))}
+          {/* Compact Results Container */}
+          <div className="compact-results">
+            {/* Goal Section */}
+            {result.goal && (
+              <div className="result-section">
+                <h4>Goal</h4>
+                <Code block name="lean" className="super-compact-code">
+                  {result.goal}
+                </Code>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Proven Hypotheses Section */}
-          {result.proven_hypotheses && result.proven_hypotheses.length > 0 && (
-            <div className="result-section">
-              <h4>Proven Hypotheses</h4>
-              <div className="hypotheses-grid">
-                {result.proven_hypotheses.map((hyp, index) => (
-                  <Code 
-                    key={index} 
-                    block 
-                    name="lean"
-                    className="proven"
-                  >
-                    {`${hyp.hypothesis}${hyp.proof ? '\n\n' + hyp.proof : ''}`}
-                  </Code>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Other Results */}
-          {Object.entries(result)
-            .filter(([key]) => !['goal', 'theoretical_hypotheses', 'proven_hypotheses'].includes(key))
-            .map(([key, value]) => (
-              <div key={key} className="result-section">
-                <h4>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
-                <div className="result-value">
-                  {typeof value === 'object' 
-                    ? JSON.stringify(value, null, 2)
-                    : value}
+            {/* Theoretical Hypotheses Section */}
+            {result.theoretical_hypotheses && result.theoretical_hypotheses.length > 0 && (
+              <div className="result-section">
+                <h4>Theoretical Hypotheses</h4>
+                <div className="hypotheses-grid">
+                  {result.theoretical_hypotheses.map((hypothesis, index) => (
+                    <Code 
+                      key={index} 
+                      block 
+                      name="lean"
+                      className="theoretical super-compact-code"
+                    >
+                      {hypothesis}
+                    </Code>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Proven Hypotheses Section */}
+            {result.proven_hypotheses && result.proven_hypotheses.length > 0 && (
+              <div className="result-section">
+                <h4>Proven Hypotheses</h4>
+                <div className="hypotheses-grid">
+                  {result.proven_hypotheses.map((hyp, index) => (
+                    <Code 
+                      key={index} 
+                      block 
+                      name="lean"
+                      className="proven super-compact-code"
+                    >
+                      {`${hyp.hypothesis}${hyp.proof ? '\n\n' + hyp.proof : ''}`}
+                    </Code>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Other Results */}
+            {Object.entries(result)
+              .filter(([key]) => !['goal', 'theoretical_hypotheses', 'proven_hypotheses'].includes(key))
+              .map(([key, value]) => (
+                <div key={key} className="result-section">
+                  <h4>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
+                  <Code 
+                    block 
+                    name="diff"
+                    className="super-compact-code"
+                  >
+                    {typeof value === 'object' 
+                      ? JSON.stringify(value, null, 2)
+                      : value}
+                  </Code>
+                </div>
+              ))}
+          </div>
         </div>
       );
     };
@@ -284,22 +387,20 @@ const stepLinkHoverStyle = {
     return (
       <div className="task-details">
         <div className="task-header">
-          <div className="task-header-left">
+          <div className="task-header-right">
             <h3>Task Details</h3>
-            <span className={`status-badge status-${selectedTaskDetails.status}`}>
-              {selectedTaskDetails.status}
-            </span>
+            <StatusBadge status={selectedTaskDetails.status} />
           </div>
-          <div className="task-id-badge">
-            ID: {selectedTaskDetails.task_id}
-          </div>
+        
         </div>
 
         {selectedTaskDetails.result && (
           <div className="detail-item result-section">
-            <h4>Result</h4>
             <div className="result-container">
               {formatResult(selectedTaskDetails.result)}
+            </div>
+            <div className="task-id-badge">
+                ID: {selectedTaskDetails.task_id}
             </div>
           </div>
         )}
@@ -395,10 +496,10 @@ const stepLinkHoverStyle = {
               )}
             </div>
             <div className="tasks-list">
-              <TaskList tasks={pendingTasks} color="#0070f3" title="Pending" />
-              <TaskList tasks={runningTasks} color="#00a651" title="Running" />
-              <TaskList tasks={finishedTasks} color="#6c757d" title="Finished" />
-              <TaskList tasks={failedTasks} color="#dc3545" title="Failed" />
+              <TaskList tasks={pendingTasks} title="Pending" />
+              <TaskList tasks={runningTasks} title="Running" />
+              <TaskList tasks={finishedTasks} title="Finished" />
+              <TaskList tasks={failedTasks} title="Failed" />
             </div>
           </div>
         </div>
@@ -504,15 +605,15 @@ const stepLinkHoverStyle = {
           border: 1px solid #eaeaea;
         }
         .task-content {
-          position: relative;
-          min-height: 50px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
           padding: 0.75rem;
         }
         .task-id {
           font-family: monospace;
           font-size: 0.9rem;
           word-break: break-all;
-          padding-right: 80px; /* Make space for the label */
         }
         .task-label {
           position: absolute;
@@ -779,7 +880,7 @@ const stepLinkHoverStyle = {
         .result-sections {
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
+          gap: 0.5rem;
         }
 
         .code-block {
@@ -889,6 +990,70 @@ const stepLinkHoverStyle = {
 
         :global(.proven) {
           border-left: 4px solid #00c853 !important;
+        }
+
+        .compact-results {
+          background: #f8f9fa;
+          border-radius: 6px;
+          padding: 0.75rem;
+          border: 1px solid #eaeaea;
+        }
+
+        .hypotheses-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 0.5rem;
+          margin-top: 0.25rem;
+        }
+
+        .result-section {
+          margin-bottom: 0.5rem;
+        }
+
+        .result-section:last-child {
+          margin-bottom: 0;
+        }
+
+        .result-section h4 {
+          color: #666;
+          font-size: 0.8rem;
+          font-weight: 600;
+          margin: 0.25rem 0;
+          padding-bottom: 0.25rem;
+          border-bottom: 1px solid #eaeaea;
+        }
+
+        :global(.theoretical) {
+          border-left: 3px solid #7c4dff !important;
+        }
+
+        :global(.proven) {
+          border-left: 3px solid #00c853 !important;
+        }
+
+        :global(.super-compact-code) {
+          font-size: 0.75rem !important;
+          line-height: 1.3 !important;
+          margin: 0 !important;
+        }
+
+        :global(.super-compact-code pre) {
+          padding: 0.35rem 0.5rem !important;
+        }
+
+        :global(.super-compact-code header) {
+          height: 1.75rem !important;
+          padding: 0 0.5rem !important;
+          min-height: unset !important;
+        }
+
+        :global(.super-compact-code header .copy) {
+          width: 1.25rem !important;
+          height: 1.25rem !important;
+        }
+
+        :global(.super-compact-code header span) {
+          font-size: 0.7rem !important;
         }
       `}</style>
     </Layout>
