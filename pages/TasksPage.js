@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import { Code } from '@geist-ui/core';
 import { CheckCircle, XCircle, Clock, Play } from '@geist-ui/icons';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
 const stepLinkStyle = {
   cursor: 'pointer',
   color: '#0070f3',
@@ -68,7 +70,7 @@ export default function TasksPage() {
     
     try {
       console.log("fetching task details for", taskId);
-      const response = await fetch(`http://127.0.0.1:8000/status/${taskId}`);
+      const response = await fetch(`${API_BASE_URL}/status/${taskId}`);
       const data = await response.json();
       
       if (response.status === 404) {
@@ -156,7 +158,7 @@ export default function TasksPage() {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/pending-tasks/');
+      const response = await fetch(`${API_BASE_URL}/pending-tasks/`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
