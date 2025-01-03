@@ -13,3 +13,8 @@ For the developer mode:
 ```cmd
 npm run dev
 ```
+
+## Current Hosting
+
+Currently, a hosted version is available here:
+https://owlgebra.vercel.app/InputPage
