@@ -26,6 +26,12 @@ export default function Footer() {
           gap: 3rem;
           padding: 1rem;
           border-top: 2px solid #eaeaea;
+          background-color: #fff;
+          position: relative;
+          z-index: 1000;
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
         }
         .footer-link {
           display: flex;

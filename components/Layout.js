@@ -2,21 +2,29 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import Footer from './Footer';
+import { useRouter } from 'next/router';
 
 export default function Layout({ children }) {
+  const router = useRouter();
+  const isTasksPage = router.pathname === '/TasksPage';
+
   return (
     <div className={styles.container}>
       <header className="header">
         <div className="headerContent">
           <div className="logo-section">
-            <Image 
-              src="/assets/logo.png"
-              alt="Owlgebra Logo"
-              width={30}
-              height={30}
-              className="logo"
-            />
-            <h1 className="title">Owlgebra</h1>
+            <Link href="/InputPage">
+              <Image 
+                src="/assets/logo.png"
+                alt="Owlgebra Logo"
+                width={30}
+                height={30}
+                className="logo"
+              />
+            </Link>
+            <Link href="/InputPage" className="title-link">
+              <h1 className="title">Owlgebra</h1>
+            </Link>
           </div>
           <nav className="nav">
             <Link href="/InputPage" className="navLink">
@@ -29,7 +37,7 @@ export default function Layout({ children }) {
         </div>
       </header>
       <main className={styles.mainContent}>{children}</main>
-      <Footer />
+      {!isTasksPage && <Footer />}
 
       <style jsx>{`
         .header {
@@ -86,8 +94,11 @@ export default function Layout({ children }) {
           background-color: #f5f5f5;
         }
         .mainContent {
-          padding-top: 120px;
+          padding-top: 80px;
+          padding-bottom: ${isTasksPage ? '0' : '80px'};
           width: 100%;
+          min-height: ${isTasksPage ? '100vh' : 'calc(100vh - 160px)'};
+          position: relative;
         }
         @media (max-width: 600px) {
           .headerContent {
@@ -98,6 +109,18 @@ export default function Layout({ children }) {
           .nav {
             gap: 1rem;
           }
+        }
+        :global(.footer) {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
+          background-color: #fff;
+        }
+        .title-link {
+          text-decoration: none;
+          cursor: pointer;
         }
       `}</style>
     </div>
