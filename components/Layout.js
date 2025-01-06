@@ -32,7 +32,7 @@ export default function Layout({ children }) {
       <style jsx>{`
         .header {
           width: 100%;
-          background-color: #ffffff;
+          background-color: #e2d5b5;
           border-bottom: 2px solid #eaeaea;
           padding: 1.5rem;
           position: fixed;
@@ -84,7 +84,7 @@ export default function Layout({ children }) {
           background-color: #f5f5f5;
         }
         .mainContent {
-          padding-top: 80px;
+          padding-top: 120px;
           width: 100%;
         }
         @media (max-width: 600px) {

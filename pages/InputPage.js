@@ -18,7 +18,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 
 export default function InputPage() {
   const router = useRouter();
-  const [theoremTitle, setTheoremTitle] = useState('THEROEM123');
+  const [theoremTitle, setTheoremTitle] = useState('YourTheoremName');
   const [env0code, setENV0Code] = useState('import Mathlib');
   const [prerequisites, setPrerequisites] = useState('["(n : ℕ)", "(oh0 : 0 < n)"]');
   const [goal, setGoal] = useState('Nat.gcd (21*n + 4) (14*n + 3) = 1');
@@ -286,7 +286,7 @@ export default function InputPage() {
               minHeight: '300px' // Add minimum height to ensure vertical centering space
             }}>
               <img 
-                src="/assets/image_small.png" 
+                src="/assets/Owlcuty.png" 
                 alt="Owlgebra Vision"
                 className="vision-image"
                 style={{
@@ -307,7 +307,7 @@ export default function InputPage() {
           background-color: #f5f7fa;
           padding: 2rem;
           gap: 4rem;
-          margin-top: 30px;
+          margin-top: 60px;
         }
         .left-section {
           flex: 1;
@@ -328,6 +328,7 @@ export default function InputPage() {
           padding: 2rem;
           width: 100%;
           margin-bottom: 2rem;
+          border: 2px solid #e2d5b5;
         }
         .solver-section {
           margin-bottom: 2rem;
@@ -348,6 +349,7 @@ export default function InputPage() {
           display: flex;
           flex-direction: column;
           gap: 2rem;
+          border: 2px solid #e2d5b5;
         }
         .vision-title {
           font-size: 2rem;
@@ -420,8 +422,8 @@ export default function InputPage() {
           justify-content: center;
         }
         .submit-button {
-          background-color: #0070f3;
-          color: white;
+          background-color: #e2d5b5;
+          color: #333;
           border: none;
           padding: 0.75rem 1.5rem;
           border-radius: 6px;
@@ -431,7 +433,7 @@ export default function InputPage() {
           transition: all 0.2s ease;
         }
         .submit-button:hover {
-          background-color: #0060df;
+          background-color: #d1c3a3;
           transform: translateY(-1px);
         }
         .submit-button:active {
@@ -475,10 +477,10 @@ export default function InputPage() {
         .vision-image {
           max-width: 100%;
           height: auto;
-          border-radius: 8px;
+          border-radius: 50%;
         }
         .collapsible-text {
-          color: #0070f3;
+          color: #e2d5b5;
           cursor: pointer;
           font-size: 0.9rem;
           font-weight: 500;
@@ -487,7 +489,7 @@ export default function InputPage() {
           text-decoration: underline;
         }
         .collapsible-text:hover {
-          color: #005bb5;
+          color: #b8a88a;
         }
         .solver-config {
           background: #f8f9fa;
