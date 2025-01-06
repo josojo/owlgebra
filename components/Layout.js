@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
+import Footer from './Footer';
 
 export default function Layout({ children }) {
   return (
@@ -28,6 +29,7 @@ export default function Layout({ children }) {
         </div>
       </header>
       <main className={styles.mainContent}>{children}</main>
+      <Footer />
 
       <style jsx>{`
         .header {
