@@ -1,7 +1,7 @@
 "use client";
 
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
@@ -24,14 +24,40 @@ export default function InputPage() {
   const [goal, setGoal] = useState('Nat.gcd (21*n + 4) (14*n + 3) = 1');
   const [taskId, setTaskId] = useState(null);
   const [showSolverConfig, setShowSolverConfig] = useState(false);
-  const [maxIterationHypothesesProof, setMaxIterationHypothesesProof] = useState(3);
-  const [maxCorrectionIterationHypothesesProof, setMaxCorrectionIterationHypothesesProof] = useState(3);
-  const [maxIterationFinalProof, setMaxIterationFinalProof] = useState(5);
-  const [maxCorrectionIterationFinalProof, setMaxCorrectionIterationFinalProof] = useState(5);
-  const [aiForHypothesesGeneration, setAIForHypothesesGeneration] = useState(AIForHypothesesProof.CLAUDE);
-  const [aiForHypothesesProof, setAIForHypothesesProof] = useState(AIForHypothesesProof.DEEPSEEK_1_5);
-  const [aiForFinalProof, setAIForFinalProof] = useState(AIForHypothesesProof.DEEPSEEK_1_5);
+  const [maxIterationHypothesesProof, setMaxIterationHypothesesProof] = useState(1);
+  const [maxCorrectionIterationHypothesesProof, setMaxCorrectionIterationHypothesesProof] = useState(1);
+  const [maxIterationFinalProof, setMaxIterationFinalProof] = useState(1);
+  const [maxCorrectionIterationFinalProof, setMaxCorrectionIterationFinalProof] = useState(1);
+  const [aiForHypothesesGeneration, setAIForHypothesesGeneration] = useState('');
+  const [aiForHypothesesProof, setAIForHypothesesProof] = useState('');
+  const [aiForFinalProof, setAIForFinalProof] = useState('');
+  const [allowedModels, setAllowedModels] = useState({
+    hypothesis_generation: [],
+    hypothesis_proof: [],
+    final_proof: [],
+  });
 
+  useEffect(() => {
+    const fetchSolverConfig = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/solver-config/`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setAllowedModels(data.limits.allowed_models);
+
+        // Set default AI model selections to the first entry in their respective lists
+        setAIForHypothesesGeneration(data.limits.allowed_models.hypothesis_generation[0] || '');
+        setAIForHypothesesProof(data.limits.allowed_models.hypothesis_proof[0] || '');
+        setAIForFinalProof(data.limits.allowed_models.final_proof[0] || '');
+      } catch (error) {
+        console.error('Error fetching solver config:', error);
+      }
+    };
+
+    fetchSolverConfig();
+  }, []);
 
   const handleSubmit = async () => {
     const requestData = {
@@ -159,7 +185,7 @@ export default function InputPage() {
                         value={aiForHypothesesGeneration}
                         onChange={(e) => setAIForHypothesesGeneration(e.target.value)}
                       >
-                        {Object.values(AIForHypothesesProof).map((ai) => (
+                        {allowedModels.hypothesis_generation.map((ai) => (
                           <option key={ai} value={ai}>
                             {ai}
                           </option>
@@ -179,7 +205,7 @@ export default function InputPage() {
                         value={aiForHypothesesProof}
                         onChange={(e) => setAIForHypothesesProof(e.target.value)}
                       >
-                        {Object.values(AIForHypothesesProof).map((ai) => (
+                        {allowedModels.hypothesis_proof.map((ai) => (
                           <option key={ai} value={ai}>
                             {ai}
                           </option>
@@ -219,7 +245,7 @@ export default function InputPage() {
                         value={aiForFinalProof}
                         onChange={(e) => setAIForFinalProof(e.target.value)}
                       >
-                        {Object.values(AIForHypothesesProof).map((ai) => (
+                        {allowedModels.final_proof.map((ai) => (
                           <option key={ai} value={ai}>
                             {ai}
                           </option>
