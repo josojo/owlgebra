@@ -6,7 +6,6 @@ import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 import Modal from '../components/Modal';
-import { parseTheorem } from '../utils/theoremParser';
 
 // Define the AIForHypothesesProof enum using a plain object
 const AIForHypothesesProof = {
@@ -20,7 +19,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 
 export default function InputPage() {
   const router = useRouter();
-  const [leanCode, setLeanCode] = useState('import Mathlib\n\ntheorem example_theorem (n : ℕ) (oh0 : 0 < n) : Nat.gcd (21*n + 4) (14*n + 3) = 1 := by');
+  const [leanCode, setLeanCode] = useState('import Mathlib\n\ntheorem example_theorem (n : ℕ) (oh0 : 0 < n) \n : Nat.gcd (21*n + 4) (14*n + 3) = 1 := by');
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   
   // Parsed states (for verification)
@@ -68,13 +67,17 @@ export default function InputPage() {
 
   const parseLeanCode = () => {
     try {
-      const parsed = parseTheorem(leanCode);
+      // Use the existing parseTheorem function from theoremParser.js
+      const { parseTheorem } = require('../utils/theoremParser');
+      const result = parseTheorem(leanCode);
       
-      setTheoremTitle(parsed.theoremTitle);
-      setENV0Code(parsed.env0code);
-      setPrerequisites(JSON.stringify(parsed.hypotheses));
-      setGoal(parsed.goal);
+      // Update states with parsed results
+      setTheoremTitle(result.theoremTitle);
+      setENV0Code(result.env0code);
+      setPrerequisites(JSON.stringify(result.hypotheses));
+      setGoal(result.goal);
       
+      // Show verification modal
       setShowVerificationModal(true);
     } catch (error) {
       console.error('Error parsing Lean code:', error);
@@ -198,6 +201,7 @@ export default function InputPage() {
                   type="text"
                   value={theoremTitle}
                   onChange={(e) => setTheoremTitle(e.target.value)}
+                  className="modal-input"
                 />
               </label>
             </div>
@@ -209,6 +213,7 @@ export default function InputPage() {
                   value={env0code}
                   onChange={(e) => setENV0Code(e.target.value)}
                   rows="5"
+                  className="modal-textarea"
                 />
               </label>
             </div>
@@ -220,6 +225,7 @@ export default function InputPage() {
                   value={prerequisites}
                   onChange={(e) => setPrerequisites(e.target.value)}
                   rows="3"
+                  className="modal-textarea"
                 />
               </label>
             </div>
@@ -231,12 +237,13 @@ export default function InputPage() {
                   type="text"
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
+                  className="modal-input"
                 />
               </label>
             </div>
 
             <div className="collapsible-text" onClick={() => setShowSolverConfig(!showSolverConfig)}>
-              {showSolverConfig ? 'Hide Solver Configuration' : 'Show Solver Configuration'}
+              Show Solver Configuration
             </div>
 
             {showSolverConfig && (
@@ -484,8 +491,8 @@ export default function InputPage() {
           background-color: #e2d5b5;
           color: #333;
           border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 6px;
+          padding: 0.75rem 2rem;
+          border-radius: 8px;
           font-size: 1rem;
           font-weight: 500;
           cursor: pointer;
@@ -493,7 +500,6 @@ export default function InputPage() {
         }
         .submit-button:hover {
           background-color: #d1c3a3;
-          transform: translateY(-1px);
         }
         .submit-button:active {
           transform: translateY(0);
@@ -614,11 +620,12 @@ export default function InputPage() {
           font-family: 'Monaco', 'Menlo', monospace;
           font-size: 14px;
           line-height: 1.5;
-          width: 100%;
+          width: calc(100% - 2rem);
           padding: 1rem;
           border: 1px solid #ddd;
           border-radius: 6px;
           background: #f8f9fa;
+          margin: 0 0rem;
         }
         .verify-button {
           background-color: #4a90e2;
@@ -639,6 +646,69 @@ export default function InputPage() {
           padding: 2rem;
           max-width: 800px;
           width: 100%;
+        }
+        .verification-content h2 {
+          font-size: 2rem;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 2rem;
+          text-align: center;
+        }
+        .input-group {
+          margin-bottom: 2rem;
+        }
+        .label-text {
+          display: block;
+          font-size: 1rem;
+          font-weight: 500;
+          color: #666;
+          margin-bottom: 0.5rem;
+          text-transform: uppercase;
+        }
+        .modal-input {
+          width: 100%;
+          padding: 0.75rem;
+          font-size: 1rem;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          background-color: #f8f9fa;
+        }
+        .modal-textarea {
+          width: 100%;
+          padding: 0.75rem;
+          font-size: 1rem;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          background-color: #f8f9fa;
+          resize: vertical;
+          min-height: 100px;
+        }
+        .modal-input:focus,
+        .modal-textarea:focus {
+          outline: none;
+          border-color: #e2d5b5;
+          background-color: white;
+        }
+        .collapsible-text {
+          color: #e2d5b5;
+          text-decoration: underline;
+          cursor: pointer;
+          margin: 1rem 0;
+          font-size: 0.9rem;
+        }
+        .submit-button {
+          background-color: #e2d5b5;
+          color: #333;
+          border: none;
+          padding: 0.75rem 2rem;
+          border-radius: 8px;
+          font-size: 1rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .submit-button:hover {
+          background-color: #d1c3a3;
         }
       `}</style>
     </Layout>

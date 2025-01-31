@@ -78,4 +78,19 @@ theorem with_imports (n : ℕ) : n = n := by`;
       goal: '(n + 1) * (n - 1) = n^2 - 1'
     });
   });
+
+  test('handles complex theorem with gcd example', () => {
+    const input = `import Mathlib
+
+theorem example_theorem (n : ℕ) (oh0 : 0 < n) : Nat.gcd (21*n + 4) (14*n + 3) = 1 := by`;
+    
+    const result = parseTheorem(input);
+    
+    expect(result).toEqual({
+      theoremTitle: 'example_theorem',
+      env0code: 'import Mathlib',
+      hypotheses: ['(n : ℕ)', '(oh0 : 0 < n)'],
+      goal: 'Nat.gcd (21*n + 4) (14*n + 3) = 1'
+    });
+  });
 }); 
