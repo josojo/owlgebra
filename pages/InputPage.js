@@ -86,6 +86,9 @@ export default function InputPage() {
   };
 
   const handleSubmit = async () => {
+    // Close the verification modal first
+    setShowVerificationModal(false);
+    
     const requestData = {
       name: theoremTitle,
       hypotheses: JSON.parse(prerequisites),
@@ -146,7 +149,7 @@ export default function InputPage() {
                   className="code-input"
                   value={leanCode}
                   onChange={(e) => setLeanCode(e.target.value)}
-                  rows="20"
+                  rows="10"
                   placeholder="Enter your Lean code here..."
                 />
               </label>
@@ -157,6 +160,14 @@ export default function InputPage() {
                 Go to Verification
               </button>
             </div>
+
+            {/* Move task info here, outside the modal */}
+            {taskId && (
+              <div className="task-info" onClick={handleTaskClick}>
+                <strong>Task Created:</strong>
+                <span className="task-id">{taskId}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -209,23 +220,23 @@ export default function InputPage() {
             <div className="input-group">
               <label>
                 <span className="label-text">Code Before Theorem</span>
-                <textarea
+                <input
+                  type="text"
                   value={env0code}
                   onChange={(e) => setENV0Code(e.target.value)}
-                  rows="5"
-                  className="modal-textarea"
+                  className="modal-input"
                 />
               </label>
             </div>
 
             <div className="input-group">
               <label>
-                <span className="label-text">Prerequisites</span>
-                <textarea
+                <span className="label-text">Assumptions</span>
+                <input
+                  type="text"
                   value={prerequisites}
                   onChange={(e) => setPrerequisites(e.target.value)}
-                  rows="3"
-                  className="modal-textarea"
+                  className="modal-input"
                 />
               </label>
             </div>
@@ -355,13 +366,6 @@ export default function InputPage() {
                 Submit for Proving
               </button>
             </div>
-
-            {taskId && (
-              <div className="task-info" onClick={handleTaskClick}>
-                <strong>Task Created:</strong>
-                <span className="task-id">{taskId}</span>
-              </div>
-            )}
           </div>
         </Modal>
       )}
@@ -642,11 +646,6 @@ export default function InputPage() {
           background-color: #357abd;
           transform: translateY(-1px);
         }
-        .verification-content {
-          padding: 2rem;
-          max-width: 800px;
-          width: 100%;
-        }
         .verification-content h2 {
           font-size: 2rem;
           font-weight: 600;
@@ -668,47 +667,16 @@ export default function InputPage() {
         .modal-input {
           width: 100%;
           padding: 0.75rem;
-          font-size: 1rem;
           border: 1px solid #ddd;
-          border-radius: 8px;
-          background-color: #f8f9fa;
-        }
-        .modal-textarea {
-          width: 100%;
-          padding: 0.75rem;
+          border-radius: 6px;
           font-size: 1rem;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background-color: #f8f9fa;
-          resize: vertical;
-          min-height: 100px;
-        }
-        .modal-input:focus,
-        .modal-textarea:focus {
-          outline: none;
-          border-color: #e2d5b5;
-          background-color: white;
-        }
-        .collapsible-text {
-          color: #e2d5b5;
-          text-decoration: underline;
-          cursor: pointer;
-          margin: 1rem 0;
-          font-size: 0.9rem;
-        }
-        .submit-button {
-          background-color: #e2d5b5;
+          background: #f8f9fa;
           color: #333;
-          border: none;
-          padding: 0.75rem 2rem;
-          border-radius: 8px;
-          font-size: 1rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s ease;
         }
-        .submit-button:hover {
-          background-color: #d1c3a3;
+        .modal-input:focus {
+          outline: none;
+          border-color: #0070f3;
+          box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
         }
       `}</style>
     </Layout>

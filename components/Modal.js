@@ -17,12 +17,12 @@ export default function Modal({ children, onClose }) {
           display: flex;
           justify-content: center;
           align-items: center;
-          z-index: 1000;
+          z-index: 1001;
         }
 
         .modal-content {
           background: white;
-          padding: 2rem;
+          padding: 2rem 3rem;
           border-radius: 16px;
           width: 90%;
           max-width: 800px;
