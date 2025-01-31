@@ -27,7 +27,7 @@ export default function InputPage() {
   const [maxIterationFinalProof, setMaxIterationFinalProof] = useState(1);
   const [maxCorrectionIterationFinalProof, setMaxCorrectionIterationFinalProof] = useState(1);
   const [aiForHypothesesGeneration, setAIForHypothesesGeneration] = useState('');
-  const [aiForHypothesesProof, setAIForHypothesesProof] = useState('');
+  const [aiForHypothesesProof, setAIForHypothesesProof] = useState([]);
   const [aiForFinalProof, setAIForFinalProof] = useState('');
   const [allowedModels, setAllowedModels] = useState({
     hypothesis_generation: [],
@@ -45,9 +45,9 @@ export default function InputPage() {
         const data = await response.json();
         setAllowedModels(data.limits.allowed_models);
 
-        // Set default AI model selections to the first entry in their respective lists
+        // Set default AI model selections
         setAIForHypothesesGeneration(data.limits.allowed_models.hypothesis_generation[0] || '');
-        setAIForHypothesesProof(data.limits.allowed_models.hypothesis_proof[0] || '');
+        setAIForHypothesesProof([data.limits.allowed_models.hypothesis_proof[0] || '']); // Initialize as array
         setAIForFinalProof(data.limits.allowed_models.final_proof[0] || '');
       } catch (error) {
         console.error('Error fetching solver config:', error);
@@ -77,6 +77,16 @@ export default function InputPage() {
     }
   };
 
+  const handleHypothesesProofModelChange = (model) => {
+    setAIForHypothesesProof(prev => {
+      if (prev.includes(model)) {
+        return prev.filter(m => m !== model);
+      } else {
+        return [...prev, model];
+      }
+    });
+  };
+
   const handleSubmit = async () => {
     // Close the verification modal first
     setShowVerificationModal(false);
@@ -86,7 +96,7 @@ export default function InputPage() {
       hypotheses: JSON.parse(prerequisites),
       goal: goal,
       ai_for_hypotheses_generation: aiForHypothesesGeneration,
-      ai_for_hyptheses_proof: aiForHypothesesProof,
+      ai_for_hypotheses_proof: aiForHypothesesProof,
       ai_for_final_proof: aiForFinalProof,
       max_iteration_hypotheses_proof: maxIterationHypothesesProof,
       max_correction_iteration_hypotheses_proof: maxCorrectionIterationHypothesesProof,
@@ -120,6 +130,79 @@ export default function InputPage() {
     if (taskId) {
         router.push(`/TasksPage?taskId=${taskId}`, undefined, { shallow: true });
     }
+  };
+
+  const MultiSelectDropdown = ({ options, selectedValues, onChange }) => {
+    return (
+      <div className="custom-select">
+        <select
+          multiple
+          value={selectedValues}
+          onChange={(e) => {
+            const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+            onChange(selectedOptions);
+          }}
+        >
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+
+        <style jsx>{`
+          .custom-select {
+            width: 300px;
+            margin-left: auto; /* This will align it to the right */
+          }
+
+          .custom-select select {
+            width: 100%;
+            height: auto;
+            min-height: 42px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+            box-sizing: border-box;
+            cursor: pointer;
+            color: #333;
+            text-align: left;
+          }
+
+          .custom-select select:focus {
+            outline: none;
+            border-color: #0070f3;
+            box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
+            background: white;
+          }
+
+          .custom-select select option {
+            padding: 8px;
+            background: white;
+            color: #333;
+            font-size: 0.95rem;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            box-sizing: border-box;
+          }
+
+          .custom-select select option:checked {
+            background: #f0f7ff;
+            color: #0070f3;
+          }
+
+          .custom-select select option:hover {
+            background: #f5f5f5;
+          }
+        `}</style>
+      </div>
+    );
   };
 
   return (
@@ -277,18 +360,21 @@ export default function InputPage() {
                 <div className="solver-section">
                   <h3 className="solver-section-title">Hypotheses Proof</h3>
                   <div className="input-group">
-                    <label className="inline-label">
-                      <span className="label-text">AI for Hypotheses Proof</span>
-                      <select
-                        value={aiForHypothesesProof}
-                        onChange={(e) => setAIForHypothesesProof(e.target.value)}
-                      >
+                    <label className="checkbox-group-label">
+                      <span className="label-text">AI Models for Hypotheses Proof</span>
+                      <div className="checkbox-container">
                         {allowedModels.hypothesis_proof.map((ai) => (
-                          <option key={ai} value={ai}>
-                            {ai}
-                          </option>
+                          <label key={ai} className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={aiForHypothesesProof.includes(ai)}
+                              onChange={() => handleHypothesesProofModelChange(ai)}
+                              className="checkbox-input"
+                            />
+                            <span className="checkbox-text">{ai}</span>
+                          </label>
                         ))}
-                      </select>
+                      </div>
                     </label>
                   </div>
                   <div className="input-group">
@@ -673,6 +759,39 @@ export default function InputPage() {
           outline: none;
           border-color: #0070f3;
           box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
+        }
+        .checkbox-group-label {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .checkbox-container {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          padding: 0.5rem;
+          background: white;
+          border-radius: 6px;
+          border: 1px solid #ddd;
+        }
+        .checkbox-label {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          padding: 0.25rem;
+        }
+        .checkbox-input {
+          width: auto;
+          margin: 0;
+        }
+        .checkbox-text {
+          font-size: 0.9rem;
+          color: #333;
+        }
+        .checkbox-label:hover {
+          background: #f5f5f5;
+          border-radius: 4px;
         }
       `}</style>
     </Layout>
