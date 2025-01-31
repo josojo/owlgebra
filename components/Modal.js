@@ -30,6 +30,7 @@ export default function Modal({ children, onClose }) {
           overflow-y: auto;
           position: relative;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+          border: 3px solid #e2d5b5;
         }
 
         .close-button {

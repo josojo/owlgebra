@@ -149,7 +149,7 @@ export default function InputPage() {
                   className="code-input"
                   value={leanCode}
                   onChange={(e) => setLeanCode(e.target.value)}
-                  rows="10"
+                  rows="12"
                   placeholder="Enter your Lean code here..."
                 />
               </label>
@@ -157,7 +157,7 @@ export default function InputPage() {
 
             <div className="button-container">
               <button onClick={parseLeanCode} className="verify-button">
-                Go to Verification
+                Prove it!
               </button>
             </div>
 
@@ -632,8 +632,8 @@ export default function InputPage() {
           margin: 0 0rem;
         }
         .verify-button {
-          background-color: #4a90e2;
-          color: white;
+          background-color: #e2d5b5;
+          color: #333;
           border: none;
           padding: 0.75rem 1.5rem;
           border-radius: 6px;
@@ -643,7 +643,7 @@ export default function InputPage() {
           transition: all 0.2s ease;
         }
         .verify-button:hover {
-          background-color: #357abd;
+          background-color: #d1c3a3;
           transform: translateY(-1px);
         }
         .verification-content h2 {
