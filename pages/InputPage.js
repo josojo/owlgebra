@@ -3,17 +3,9 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 import Modal from '../components/Modal';
 
-// Define the AIForHypothesesProof enum using a plain object
-const AIForHypothesesProof = {
-  CLAUDE: 'Claude',
-  OPENAI_O1: 'OpenAI(o1)',
-  OPENAI_4O: 'OpenAI(4o)',
-  DEEPSEEK_1_5: 'DeepSeek1.5',
-};
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
@@ -183,16 +175,18 @@ export default function InputPage() {
               justifyContent: 'center', 
               alignItems: 'center',
               flex: 1,
-              minHeight: '300px' // Add minimum height to ensure vertical centering space
+              minHeight: '200px',
+              maxHeight: '250px'
             }}>
               <img 
                 src="/assets/Owlcuty.png" 
                 alt="Owlgebra Vision"
                 className="vision-image"
                 style={{
-                  maxWidth: '80%',
-                  maxHeight: '80%',
-                  objectFit: 'center'
+                  maxWidth: '60%',
+                  maxHeight: '60%',
+                  objectFit: 'contain',
+                  borderRadius: '50%'
                 }}
               />
             </div>
@@ -413,25 +407,26 @@ export default function InputPage() {
           background: white;
           border-radius: 8px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          padding: 3rem;
+          padding: 2rem;
           text-align: center;
           width: 100%;
           display: flex;
           flex-direction: column;
-          gap: 2rem;
+          gap: 1rem;
           border: 2px solid #e2d5b5;
         }
         .vision-title {
-          font-size: 2rem;
+          font-size: 1.8rem;
           font-weight: 700;
           color: #333;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1rem;
         }
         .vision-text {
-          font-size: 1.5rem;
-          line-height: 1.6;
+          font-size: 1.2rem;
+          line-height: 1.5;
           color: #666;
           font-weight: 400;
+          margin-bottom: 1rem;
         }
         .section-title {
           font-size: 1.8rem;
@@ -544,8 +539,9 @@ export default function InputPage() {
           justify-content: center;
         }
         .vision-image {
-          max-width: 100%;
-          height: auto;
+          max-width: 60%;
+          max-height: 60%;
+          object-fit: contain;
           border-radius: 50%;
         }
         .collapsible-text {

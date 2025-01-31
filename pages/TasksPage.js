@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
 import { Code } from '@geist-ui/core';
 import { CheckCircle, XCircle, Clock, Play } from '@geist-ui/icons';
