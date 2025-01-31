@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/Home.module.css';
 import { useRouter } from 'next/router';
+import Modal from '../components/Modal';
+import { parseTheorem } from '../utils/theoremParser';
 
 // Define the AIForHypothesesProof enum using a plain object
 const AIForHypothesesProof = {
@@ -18,10 +20,15 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 
 export default function InputPage() {
   const router = useRouter();
-  const [theoremTitle, setTheoremTitle] = useState('YourTheoremName');
-  const [env0code, setENV0Code] = useState('import Mathlib');
-  const [prerequisites, setPrerequisites] = useState('["(n : ℕ)", "(oh0 : 0 < n)"]');
-  const [goal, setGoal] = useState('Nat.gcd (21*n + 4) (14*n + 3) = 1');
+  const [leanCode, setLeanCode] = useState('import Mathlib\n\ntheorem example_theorem (n : ℕ) (oh0 : 0 < n) : Nat.gcd (21*n + 4) (14*n + 3) = 1 := by');
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  
+  // Parsed states (for verification)
+  const [theoremTitle, setTheoremTitle] = useState('');
+  const [env0code, setENV0Code] = useState('');
+  const [prerequisites, setPrerequisites] = useState('');
+  const [goal, setGoal] = useState('');
+  
   const [taskId, setTaskId] = useState(null);
   const [showSolverConfig, setShowSolverConfig] = useState(false);
   const [maxIterationHypothesesProof, setMaxIterationHypothesesProof] = useState(1);
@@ -59,6 +66,22 @@ export default function InputPage() {
     fetchSolverConfig();
   }, []);
 
+  const parseLeanCode = () => {
+    try {
+      const parsed = parseTheorem(leanCode);
+      
+      setTheoremTitle(parsed.theoremTitle);
+      setENV0Code(parsed.env0code);
+      setPrerequisites(JSON.stringify(parsed.hypotheses));
+      setGoal(parsed.goal);
+      
+      setShowVerificationModal(true);
+    } catch (error) {
+      console.error('Error parsing Lean code:', error);
+      alert('Error parsing Lean code. Please check the format.');
+    }
+  };
+
   const handleSubmit = async () => {
     const requestData = {
       name: theoremTitle,
@@ -95,14 +118,6 @@ export default function InputPage() {
     }
   };
 
-  const handleTheoremTitleChange = (e) => {
-    const value = e.target.value;
-    const regex = /^[a-zA-Z0-9]*$/; // Regex to allow only letters and numbers
-    if (regex.test(value)) {
-      setTheoremTitle(value);
-    }
-  };
-
   const handleTaskClick = () => {
     if (taskId) {
         router.push(`/TasksPage?taskId=${taskId}`, undefined, { shallow: true });
@@ -123,36 +138,88 @@ export default function InputPage() {
             
             <div className="input-group">
               <label>
+                <span className="label-text">Lean Code</span>
+                <textarea
+                  className="code-input"
+                  value={leanCode}
+                  onChange={(e) => setLeanCode(e.target.value)}
+                  rows="20"
+                  placeholder="Enter your Lean code here..."
+                />
+              </label>
+            </div>
+
+            <div className="button-container">
+              <button onClick={parseLeanCode} className="verify-button">
+                Go to Verification
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="right-section">
+          <div className="vision-box">
+            <h2 className="vision-title">Our Vision</h2>
+            <p className="vision-text">
+              Project Owlgebra envisions to empower everyone with the latest math-AI innovation. 
+              Send us your theorem and we will prove it for you using Lean4 theorem prover.
+            </p>
+            <div className="image-container" style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              flex: 1,
+              minHeight: '300px' // Add minimum height to ensure vertical centering space
+            }}>
+              <img 
+                src="/assets/Owlcuty.png" 
+                alt="Owlgebra Vision"
+                className="vision-image"
+                style={{
+                  maxWidth: '80%',
+                  maxHeight: '80%',
+                  objectFit: 'center'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showVerificationModal && (
+        <Modal onClose={() => setShowVerificationModal(false)}>
+          <div className="verification-content">
+            <h2>Verify Parsed Information</h2>
+            
+            <div className="input-group">
+              <label>
                 <span className="label-text">Theorem Name</span>
                 <input
                   type="text"
                   value={theoremTitle}
-                  onChange={handleTheoremTitleChange}
-                  placeholder="Enter theorem title"
+                  onChange={(e) => setTheoremTitle(e.target.value)}
                 />
               </label>
             </div>
 
             <div className="input-group">
               <label>
-                <span className="label-text">LEAN CODE BEFORE THEOREM</span>
+                <span className="label-text">Code Before Theorem</span>
                 <textarea
-                  className="text-area-input"
                   value={env0code}
                   onChange={(e) => setENV0Code(e.target.value)}
+                  rows="5"
                 />
               </label>
             </div>
 
             <div className="input-group">
               <label>
-                <span className="label-text">Assumptions</span>
+                <span className="label-text">Prerequisites</span>
                 <textarea
                   value={prerequisites}
                   onChange={(e) => setPrerequisites(e.target.value)}
-                  placeholder="Enter assumptions as JSON array"
-                  rows="5"
-                  className="text-area-input"
+                  rows="3"
                 />
               </label>
             </div>
@@ -164,7 +231,6 @@ export default function InputPage() {
                   type="text"
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
-                  placeholder="Enter your goal"
                 />
               </label>
             </div>
@@ -279,52 +345,19 @@ export default function InputPage() {
 
             <div className="button-container">
               <button onClick={handleSubmit} className="submit-button">
-                Start Proving
+                Submit for Proving
               </button>
             </div>
 
             {taskId && (
-              <div 
-                className="task-info"
-                onClick={handleTaskClick}
-                role="button"
-                tabIndex={0}
-              >
+              <div className="task-info" onClick={handleTaskClick}>
                 <strong>Task Created:</strong>
                 <span className="task-id">{taskId}</span>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="right-section">
-          <div className="vision-box">
-            <h2 className="vision-title">Our Vision</h2>
-            <p className="vision-text">
-              Project Owlgebra envisions to empower everyone with the latest math-AI innovation. 
-              Send us your theorem and we will prove it for you using Lean4 theorem prover.
-            </p>
-            <div className="image-container" style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              flex: 1,
-              minHeight: '300px' // Add minimum height to ensure vertical centering space
-            }}>
-              <img 
-                src="/assets/Owlcuty.png" 
-                alt="Owlgebra Vision"
-                className="vision-image"
-                style={{
-                  maxWidth: '80%',
-                  maxHeight: '80%',
-                  objectFit: 'center'
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+        </Modal>
+      )}
 
       <style jsx>{`
         .page-container {
@@ -576,6 +609,36 @@ export default function InputPage() {
           border-color: #0070f3;
           box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
           background: white;
+        }
+        .code-input {
+          font-family: 'Monaco', 'Menlo', monospace;
+          font-size: 14px;
+          line-height: 1.5;
+          width: 100%;
+          padding: 1rem;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          background: #f8f9fa;
+        }
+        .verify-button {
+          background-color: #4a90e2;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 6px;
+          font-size: 1rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .verify-button:hover {
+          background-color: #357abd;
+          transform: translateY(-1px);
+        }
+        .verification-content {
+          padding: 2rem;
+          max-width: 800px;
+          width: 100%;
         }
       `}</style>
     </Layout>
