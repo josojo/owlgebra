@@ -300,6 +300,26 @@ export default function TasksPage() {
       setSelectedStep(step);
     };
 
+    const handleStopTask = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/kill-task/${selectedTaskDetails.task_id}`, {
+          method: 'POST',
+        });
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.detail || 'Failed to stop task');
+        }
+
+        // Refresh task details
+        fetchTaskDetails(selectedTaskDetails.task_id);
+        // Refresh task lists
+        fetchTasks();
+      } catch (error) {
+        console.error('Error stopping task:', error);
+      }
+    };
+
     // Format the result object for better display
     const formatResult = (result) => {
       if (result.error) {
@@ -388,11 +408,36 @@ export default function TasksPage() {
     return (
       <div className="task-details">
         <div className="task-header">
-          <div className="task-header-right">
+          <div className="task-header-left">
             <h3>Task Details {selectedTaskDetails.task_id}</h3>
-            <StatusBadge status={selectedTaskDetails.status} />
           </div>
-        
+          <div className="task-header-right">
+            <div>
+              <StatusBadge status={selectedTaskDetails.status} />
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              {(selectedTaskDetails.status === 'running' || selectedTaskDetails.status === 'pending') && (
+                <button 
+                  onClick={handleStopTask}
+                  className="stop-task-button"
+                  style={{  // Add inline style to ensure it takes precedence
+                    backgroundColor: '#e2d5b5',
+                    color: '#333',
+                    border: 'none',
+                    padding: '0.25rem 1rem',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    marginRight: 'auto',
+                  }}
+                >
+                  Stop Task
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {selectedTaskDetails.result && (
@@ -556,6 +601,7 @@ export default function TasksPage() {
           border-bottom: 2px solid #eaeaea;
         }
         .task-details {
+          position: relative;
           padding: 1rem;
           background: #ffffff;
           border-radius: 8px;
@@ -782,6 +828,12 @@ export default function TasksPage() {
           display: flex;
           align-items: center;
           gap: 1rem;
+        }
+
+        .task-header-right {
+          display: flex;
+          align-items: center;
+          gap: 2rem;
         }
 
         .task-header h3 {
@@ -1052,6 +1104,27 @@ export default function TasksPage() {
 
         :global(.super-compact-code header span) {
           font-size: 0.7rem !important;
+        }
+
+        .stop-task-button {
+          background-color: #e2d5b5 !important;
+          color: #333 !important;
+          border: none !important;
+          padding: 0.75rem 2rem !important;
+          border-radius: 8px !important;
+          font-size: 1rem !important;
+          font-weight: 500 !important;
+          cursor: pointer !important;
+          transition: all 0.2s ease !important;
+          margin-left: auto !important;
+        }
+
+        .stop-task-button:hover {
+          background-color: #d1c3a3 !important;
+        }
+
+        .stop-task-button:active {
+          transform: translateY(0) !important;
         }
       `}</style>
     </Layout>
