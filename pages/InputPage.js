@@ -250,27 +250,14 @@ export default function InputPage() {
           <div className="vision-box">
             <h2 className="vision-title">Our Vision</h2>
             <p className="vision-text">
-              Project Owlgebra envisions to empower everyone with the latest math-AI innovation. 
+              Owlgebra envisions to empower everyone with the latest math-AI innovation. 
               Send us your theorem and we will prove it for you using Lean4 theorem prover.
             </p>
-            <div className="image-container" style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              flex: 1,
-              minHeight: '200px',
-              maxHeight: '250px'
-            }}>
+            <div className="image-container">
               <img 
                 src="/assets/Owlcuty.png" 
                 alt="Owlgebra Vision"
                 className="vision-image"
-                style={{
-                  maxWidth: '60%',
-                  maxHeight: '60%',
-                  objectFit: 'contain',
-                  borderRadius: '50%'
-                }}
               />
             </div>
           </div>
@@ -500,6 +487,7 @@ export default function InputPage() {
           flex-direction: column;
           gap: 1rem;
           border: 2px solid #e2d5b5;
+          min-height: 200px;
         }
         .vision-title {
           font-size: 1.8rem;
@@ -619,16 +607,22 @@ export default function InputPage() {
           font-size: 0.9rem;
         }
         .image-container {
-          margin-top: 2rem;
+          margin-top: auto;
           width: 100%;
           display: flex;
           justify-content: center;
+          align-items: center;
+          padding: 1rem;
+          max-height: 300px;
+          overflow: hidden;
         }
         .vision-image {
-          max-width: 60%;
-          max-height: 60%;
+          width: auto;
+          height: auto;
+          max-width: 180px;
+          max-height: 250px;
           object-fit: contain;
-          border-radius: 50%;
+          border-radius: 80%;
         }
         .collapsible-text {
           color: #e2d5b5;
