@@ -28,6 +28,7 @@ export default function TasksPage() {
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStep, setSelectedStep] = useState(null);
+  const [provenTaskIds, setProvenTaskIds] = useState(new Set());
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -138,12 +139,12 @@ export default function TasksPage() {
           const taskId = taskIdMatch ? taskIdMatch[1] : null;
           const isSelected = taskId === selectedTaskId;
           
-          // Check if this task has a proof
-          const taskDetails = selectedTaskId === taskId ? selectedTaskDetails : null;
-          const isProven = taskDetails && 
-                           taskDetails.result && 
-                           taskDetails.result.proven_hypotheses && 
-                           taskDetails.result.proven_hypotheses.some(hyp => hyp.proof && hyp.proof.trim() !== '');
+          // Check if this task has a proof - either from selected task details or from our provenTaskIds Set
+          const isProven = (selectedTaskId === taskId && selectedTaskDetails && 
+                           selectedTaskDetails.result && 
+                           selectedTaskDetails.result.proof &&
+                           selectedTaskDetails.result.proof !== null) ||
+                           provenTaskIds.has(taskId);
           
           return (
             <li 
@@ -173,8 +174,45 @@ export default function TasksPage() {
       setRunningTasks(data.running_tasks);
       setFailedTasks(data.failed_tasks);
       setFinishedTasks(data.finished_tasks);
+      
+      // Check for proven tasks in finished tasks
+      if (data.finished_tasks && data.finished_tasks.length > 0) {
+        checkForProvenTasks(data.finished_tasks);
+      }
     } catch (error) {
       console.error('Error fetching tasks:', error);
+    }
+  };
+
+  const checkForProvenTasks = async (tasks) => {
+    // Create a new Set to track proven task IDs
+    const newProvenTaskIds = new Set(provenTaskIds);
+    
+    // For each finished task, check if it has a proof
+    for (const task of tasks) {
+      const taskIdMatch = task.match(/^([^:]+)/);
+      const taskId = taskIdMatch ? taskIdMatch[1] : null;
+      
+      if (taskId && !provenTaskIds.has(taskId)) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/status/${taskId}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.result && 
+                data.result.proof && 
+                data.result.proof !== null) {
+              newProvenTaskIds.add(taskId);
+            }
+          }
+        } catch (error) {
+          console.error(`Error checking if task ${taskId} is proven:`, error);
+        }
+      }
+    }
+    
+    // Update the state if we found new proven tasks
+    if (newProvenTaskIds.size !== provenTaskIds.size) {
+      setProvenTaskIds(newProvenTaskIds);
     }
   };
 
@@ -428,8 +466,8 @@ export default function TasksPage() {
 
     // Check if this task has a proof
     const isProven = selectedTaskDetails.result && 
-                     selectedTaskDetails.result.proven_hypotheses && 
-                     selectedTaskDetails.result.proven_hypotheses.some(hyp => hyp.proof && hyp.proof.trim() !== '');
+                     selectedTaskDetails.result.proof && 
+                     selectedTaskDetails.result.proof !== null;
 
     return (
       <div className="task-details">
