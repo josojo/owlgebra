@@ -138,6 +138,13 @@ export default function TasksPage() {
           const taskId = taskIdMatch ? taskIdMatch[1] : null;
           const isSelected = taskId === selectedTaskId;
           
+          // Check if this task has a proof
+          const taskDetails = selectedTaskId === taskId ? selectedTaskDetails : null;
+          const isProven = taskDetails && 
+                           taskDetails.result && 
+                           taskDetails.result.proven_hypotheses && 
+                           taskDetails.result.proven_hypotheses.some(hyp => hyp.proof && hyp.proof.trim() !== '');
+          
           return (
             <li 
               key={index} 
@@ -146,7 +153,7 @@ export default function TasksPage() {
             >
               <div className="task-content">
                 <div className="task-id">{taskId}-{title.toLowerCase()}</div>
-                <StatusBadge status={title} />
+                <StatusBadge status={title} isProven={isProven} />
               </div>
             </li>
           );
@@ -171,48 +178,62 @@ export default function TasksPage() {
     }
   };
 
-  const StatusBadge = ({ status }) => {
-    const getStatusInfo = (status) => {
+  const StatusBadge = ({ status, isProven }) => {
+    const getStatusInfo = (status, isProven) => {
+      if (status.toLowerCase() === 'finished' && isProven) {
+        return {
+          icon: <CheckCircle size={16} />,
+          color: '#00c853',
+          background: '#e6fff0',
+          text: 'Proven'
+        };
+      }
+      
       switch (status.toLowerCase()) {
         case 'finished':
           return {
             icon: <CheckCircle size={16} />,
-            color: '#00c853',
-            background: '#e6fff0'
+            color: '#0070f3',
+            background: '#e6f3ff',
+            text: 'Finished'
           };
         case 'failed':
           return {
             icon: <XCircle size={16} />,
             color: '#dc3545',
-            background: '#ffe6e6'
+            background: '#ffe6e6',
+            text: 'Failed'
           };
         case 'pending':
           return {
             icon: <Clock size={16} />,
             color: '#0070f3',
-            background: '#e6f3ff'
+            background: '#e6f3ff',
+            text: 'Pending'
           };
         case 'running':
           return {
             icon: <Play size={16} />,
             color: '#00a651',
-            background: '#e6fff0'
+            background: '#e6fff0',
+            text: 'Running'
           };
         default:
           return {
             icon: <Clock size={16} />,
             color: '#6c757d',
-            background: '#f8f9fa'
+            background: '#f8f9fa',
+            text: status
           };
       }
     };
 
-    const statusInfo = getStatusInfo(status);
+    const statusInfo = getStatusInfo(status, isProven);
 
     return (
       <div className="status-badge">
         <span className="status-icon">{statusInfo.icon}</span>
-        <span className="status-text">{status}</span>
+        <span className="status-text">{statusInfo.text}</span>
         <style jsx>{`
           .status-badge {
             display: inline-flex;
@@ -405,6 +426,11 @@ export default function TasksPage() {
       );
     };
 
+    // Check if this task has a proof
+    const isProven = selectedTaskDetails.result && 
+                     selectedTaskDetails.result.proven_hypotheses && 
+                     selectedTaskDetails.result.proven_hypotheses.some(hyp => hyp.proof && hyp.proof.trim() !== '');
+
     return (
       <div className="task-details">
         <div className="task-header">
@@ -412,8 +438,11 @@ export default function TasksPage() {
             <h3>Task Details {selectedTaskDetails.task_id}</h3>
           </div>
           <div className="task-header-right">
-            <div>
-              <StatusBadge status={selectedTaskDetails.status} />
+            <div className="status-badges">
+              <StatusBadge status={selectedTaskDetails.status} isProven={isProven} />
+              {selectedTaskDetails.status.toLowerCase() === 'finished' && isProven && (
+                <div className="status-badge-spacer"></div>
+              )}
             </div>
             <div style={{ textAlign: 'right' }}>
               {(selectedTaskDetails.status === 'running' || selectedTaskDetails.status === 'pending') && (
@@ -849,6 +878,16 @@ export default function TasksPage() {
           font-family: monospace;
           font-size: 0.9rem;
           color: #666;
+        }
+
+        .status-badges {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+        }
+        
+        .status-badge-spacer {
+          width: 0.25rem;
         }
 
         .status-badge {
