@@ -450,8 +450,8 @@ export default function TasksPage() {
                   <h4>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
                   <Code 
                     block 
-                    name="diff"
-                    className="super-compact-code"
+                    name="lean"
+                    className="finalproven super-compact-code"
                   >
                     {typeof value === 'object' 
                       ? JSON.stringify(value, null, 2)
@@ -1156,6 +1156,10 @@ export default function TasksPage() {
 
         :global(.proven) {
           border-left: 3px solid #00c853 !important;
+        }
+        
+        :global(.finalproven) {
+          border-left: 3px solid #002c57!important;
         }
 
         :global(.super-compact-code) {
