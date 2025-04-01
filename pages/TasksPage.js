@@ -131,37 +131,55 @@ export default function TasksPage() {
     );
   };
 
-  const TaskList = ({ tasks, title }) => (
-    <div className="task-list-container">
-      <ul>
-        {filterTasks(tasks).map((task, index) => {
-          const taskIdMatch = task.match(/^([^:]+)/);
-          const taskId = taskIdMatch ? taskIdMatch[1] : null;
-          const isSelected = taskId === selectedTaskId;
-          
-          // Check if this task has a proof - either from selected task details or from our provenTaskIds Set
-          const isProven = (selectedTaskId === taskId && selectedTaskDetails && 
-                           selectedTaskDetails.result && 
-                           selectedTaskDetails.result.proof &&
-                           selectedTaskDetails.result.proof !== null) ||
-                           provenTaskIds.has(taskId);
-          
-          return (
-            <li 
-              key={index} 
-              onClick={() => handleTaskClick(task)}
-              className={`task-item ${isSelected ? 'selected' : ''}`}
-            >
-              <div className="task-content">
-                <div className="task-id">{taskId}-{title.toLowerCase()}</div>
-                <StatusBadge status={title} isProven={isProven} />
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
+  const isTaskProven = (taskId) => {
+    return (selectedTaskId === taskId && 
+            selectedTaskDetails?.result?.proof !== null) ||
+            provenTaskIds.has(taskId);
+  };
+
+  const TaskList = ({ tasks, title }) => {
+    // Sort tasks to put proven ones at the top
+    const sortedTasks = filterTasks(tasks).sort((a, b) => {
+      const taskIdA = a.match(/^([^:]+)/)?.[1];
+      const taskIdB = b.match(/^([^:]+)/)?.[1];
+      
+      const isProvenA = isTaskProven(taskIdA);
+      const isProvenB = isTaskProven(taskIdB);
+      
+      // If A is proven and B isn't, A should come first
+      if (isProvenA && !isProvenB) return -1;
+      // If B is proven and A isn't, B should come first
+      if (!isProvenA && isProvenB) return 1;
+      // If both are proven or both are not proven, maintain original order
+      return 0;
+    });
+
+    return (
+      <div className="task-list-container">
+        <ul>
+          {sortedTasks.map((task, index) => {
+            const taskIdMatch = task.match(/^([^:]+)/);
+            const taskId = taskIdMatch ? taskIdMatch[1] : null;
+            const isSelected = taskId === selectedTaskId;
+            const isProven = isTaskProven(taskId);
+            
+            return (
+              <li 
+                key={index} 
+                onClick={() => handleTaskClick(task)}
+                className={`task-item ${isSelected ? 'selected' : ''} ${isProven ? 'proven' : ''}`}
+              >
+                <div className="task-content">
+                  <div className="task-id">{taskId}-{title.toLowerCase()}</div>
+                  <StatusBadge status={title} isProven={isProven} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  };
 
   const fetchTasks = async () => {
     try {
@@ -1206,6 +1224,19 @@ export default function TasksPage() {
 
         .stop-task-button:active {
           transform: translateY(0) !important;
+        }
+
+        :global(.task-item.proven) {
+          border-left: 3px solid #00c853;
+        }
+
+        :global(.task-item.proven:hover) {
+          background-color: #e6fff0;
+        }
+
+        :global(.task-item.proven.selected) {
+          background-color: #e6fff0;
+          border-left: 3px solid #00c853;
         }
       `}</style>
     </Layout>
