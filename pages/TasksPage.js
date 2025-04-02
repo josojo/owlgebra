@@ -320,48 +320,73 @@ export default function TasksPage() {
       <div className="steps-overview">
         <h3>Logs:</h3>
         <h4>Steps Overview</h4>
-        <ul>
-          {Object.keys(logs).map((step, index) => (
-            <li 
-              key={index} 
-              style={stepLinkStyle}
-              onMouseEnter={(e) => e.currentTarget.style.color = stepLinkHoverStyle.color}
-              onMouseLeave={(e) => e.currentTarget.style.color = stepLinkStyle.color}
-              onClick={() => onStepClick(step)}
-            >
-              {step}
-            </li>
-          ))}
+        <ul className="steps-list">
+          {Object.keys(logs).map((step, index) => {
+            // More thorough cleaning of the step name to remove dashes and arrows
+            const cleanStepName = step.replace(/^[-–—]\s*[→⟶]\s*/, '');
+            return (
+              <li 
+                key={index} 
+                className="step-item"
+                onClick={() => onStepClick(step)}
+              >
+                <span className="step-arrow">→</span>
+                {cleanStepName}
+              </li>
+            );
+          })}
         </ul>
         <style jsx>{`
           .steps-overview {
             margin-top: 1rem;
-            padding: 1rem;
+            padding: 1.5rem;
             background: #f8f9fa;
-            border-radius: 6px;
+            border-radius: 8px;
             border: 1px solid #eaeaea;
           }
           
           .steps-overview h3 {
             margin: 0 0 0.5rem 0;
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: #333;
+            font-weight: 600;
           }
           
           .steps-overview h4 {
-            margin: 0.5rem 0;
+            margin: 0.75rem 0 1rem 0;
             font-size: 0.9rem;
             color: #666;
+            font-weight: 500;
           }
           
-          .steps-overview ul {
+          .steps-list {
             list-style: none;
             padding: 0;
             margin: 0;
           }
           
-          .steps-overview li {
-            padding: 4px 0;
+          .step-item {
+            padding: 0.5rem 1rem;
+            margin: 0.25rem 0;
+            color: #0070f3;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+          
+          .step-item:hover {
+            background: #e6f3ff;
+            transform: translateX(4px);
+          }
+          
+          .step-arrow {
+            color: #0070f3;
+            opacity: 0.7;
+            font-size: 1rem;
           }
         `}</style>
       </div>
