@@ -445,11 +445,22 @@ export default function InputPage() {
           padding: 2rem;
           gap: 4rem;
           margin-top: 60px;
+          
+          @media (max-width: 768px) {
+            flex-direction: column;
+            padding: 1rem;
+            gap: 2rem;
+          }
         }
         .left-section {
           flex: 1;
           max-width: calc(50% - 2rem);
           padding-right: 2rem;
+
+          @media (max-width: 768px) {
+            max-width: 100%;
+            padding-right: 0;
+          }
         }
         .right-section {
           flex: 1;
@@ -457,6 +468,11 @@ export default function InputPage() {
           display: flex;
           align-items: flex-start;
           padding-left: 2rem;
+
+          @media (max-width: 768px) {
+            max-width: 100%;
+            padding-left: 0;
+          }
         }
         .content-box {
           background: white;

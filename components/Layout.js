@@ -3,10 +3,12 @@ import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import Footer from './Footer';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 export default function Layout({ children }) {
   const router = useRouter();
   const isTasksPage = router.pathname === '/TasksPage';
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className={styles.container}>
@@ -26,7 +28,12 @@ export default function Layout({ children }) {
               <h1 className="title">Owlgebra</h1>
             </Link>
           </div>
-          <nav className="nav">
+          
+          <button className="mobile-menu-button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <span className="menu-icon"></span>
+          </button>
+
+          <nav className={`nav ${mobileMenuOpen ? 'nav-open' : ''}`}>
             <Link href="/InputPage" className="navLink">
               Start Proving
             </Link>
@@ -74,10 +81,63 @@ export default function Layout({ children }) {
           margin: 0;
           letter-spacing: -0.5px;
         }
+        .mobile-menu-button {
+          display: none;
+          background: none;
+          border: none;
+          padding: 0.5rem;
+          cursor: pointer;
+
+          @media (max-width: 768px) {
+            display: block;
+          }
+        }
+        .menu-icon {
+          display: block;
+          width: 25px;
+          height: 3px;
+          background-color: #333;
+          position: relative;
+          transition: all 0.3s;
+
+          &:before,
+          &:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: #333;
+            transition: all 0.3s;
+          }
+
+          &:before {
+            top: -8px;
+          }
+
+          &:after {
+            bottom: -8px;
+          }
+        }
         .nav {
           display: flex;
           gap: 2rem;
           align-items: center;
+
+          @media (max-width: 768px) {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #e2d5b5;
+            flex-direction: column;
+            padding: 1rem;
+            gap: 1rem;
+            
+            &.nav-open {
+              display: flex;
+            }
+          }
         }
         :global(.navLink) {
           text-decoration: none;
@@ -88,6 +148,12 @@ export default function Layout({ children }) {
           border-radius: 6px;
           transition: all 0.2s ease;
           margin: 0 0.5rem;
+
+          @media (max-width: 768px) {
+            width: 100%;
+            text-align: center;
+            margin: 0;
+          }
         }
         :global(.navLink:hover) {
           color: #0070f3;
