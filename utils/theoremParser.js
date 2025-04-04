@@ -57,9 +57,37 @@ const parseTheorem = (leanCode) => {
     }
   }
 
-  // Get goal - everything after the colon but before := by or :=
-  let goal = theoremText.substring(colonIndex + 1).trim();
-  goal = goal.replace(/\s*:=\s*by\s*$/, '').replace(/\s*:=\s*$/, '');
+  // Get goal - everything after the colon but before the correct :=
+  const goalSection = theoremText.substring(colonIndex + 1);
+  let proofStartIndex = -1;
+  let bracketLevel = 0;
+  const openBrackets = ['(', '{', '['];
+  const closeBrackets = [')', '}', ']'];
+
+  for (let i = 0; i < goalSection.length - 1; i++) { // Check up to second-to-last char for ':='
+    const char = goalSection[i];
+    const nextChar = goalSection[i + 1];
+
+    if (openBrackets.includes(char)) {
+      bracketLevel++;
+    } else if (closeBrackets.includes(char)) {
+      bracketLevel = Math.max(0, bracketLevel - 1); // Prevent going below 0
+    }
+
+    // Check for ':=' only when outside any brackets opened in this section
+    if (char === ':' && nextChar === '=' && bracketLevel === 0) {
+      proofStartIndex = i;
+      break;
+    }
+  }
+
+  // Throw an error if the proof start symbol ':=' is not found at the top level
+  if (proofStartIndex === -1) {
+    throw new Error('Invalid theorem format: missing proof start (:=) at the correct bracket level');
+  }
+
+  // Extract the goal by taking the substring before the identified ':=' and trimming whitespace
+  let goal = goalSection.substring(0, proofStartIndex).trim();
 
   return {
     theoremTitle,
