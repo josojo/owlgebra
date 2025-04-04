@@ -433,16 +433,24 @@ export default function TasksPage() {
         );
       }
 
+      // Construct the full theorem statement
+      const theoremStatement = [
+        result.code_env || '', // Include code_env if it exists
+        `theorem ${result.name || 'unknown'}`, // Add theorem keyword and name
+        ...(result.hypotheses || []), // Spread hypotheses array
+        `: ${result.goal || ''}` // Add the goal, prefixed with ':='
+      ].filter(line => line.trim() !== '').join('\n'); // Filter empty lines and join
+
       return (
         <div className="result-sections">
           {/* Compact Results Container */}
           <div className="compact-results">
-            {/* Goal Section */}
-            {result.goal && (
+            {/* Theorem Statement Section */}
+            {theoremStatement && ( // Only render if theoremStatement is not empty
               <div className="result-section">
-                <h4>Goal</h4>
+                <h4>Theorem Statement</h4>
                 <Code block name="lean" className="super-compact-code">
-                  {result.goal}
+                  {theoremStatement}
                 </Code>
               </div>
             )}
@@ -487,7 +495,8 @@ export default function TasksPage() {
 
             {/* Other Results */}
             {Object.entries(result)
-              .filter(([key]) => !['goal', 'theoretical_hypotheses', 'proven_hypotheses', 'name'].includes(key))
+              // Update filter to exclude the fields used in the theorem statement
+              .filter(([key]) => !['goal', 'theoretical_hypotheses', 'proven_hypotheses', 'name', 'hypotheses', 'code_env', 'proof'].includes(key))
               .map(([key, value]) => (
                 <div key={key} className="result-section">
                   <h4>{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>
