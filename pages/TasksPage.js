@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Layout from '../components/Layout';
 import { useRouter } from 'next/router';
 import { Code } from '@geist-ui/core';
@@ -29,6 +29,7 @@ export default function TasksPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStep, setSelectedStep] = useState(null);
   const [provenTaskIds, setProvenTaskIds] = useState(new Set());
+  const prevFinishedTasksRef = useRef([]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -188,15 +189,24 @@ export default function TasksPage() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setPendingTasks(data.pending_tasks);
-      setRunningTasks(data.running_tasks);
-      setFailedTasks(data.failed_tasks);
-      setFinishedTasks(data.finished_tasks);
       
-      // Check for proven tasks in finished tasks
-      if (data.finished_tasks && data.finished_tasks.length > 0) {
-        checkForProvenTasks(data.finished_tasks);
+      const currentFinishedTasks = data.finished_tasks || [];
+      const previousFinishedTasks = prevFinishedTasksRef.current || [];
+
+      const finishedTasksChanged = 
+        currentFinishedTasks.length !== previousFinishedTasks.length || 
+        JSON.stringify(currentFinishedTasks.slice().sort()) !== JSON.stringify(previousFinishedTasks.slice().sort());
+        
+      if (finishedTasksChanged && currentFinishedTasks.length > 0) {
+        console.log("Finished tasks changed, checking for new proven tasks.");
+        checkForProvenTasks(currentFinishedTasks);
+        prevFinishedTasksRef.current = currentFinishedTasks;
       }
+
+      setPendingTasks(data.pending_tasks || []);
+      setRunningTasks(data.running_tasks || []);
+      setFailedTasks(data.failed_tasks || []);
+      setFinishedTasks(currentFinishedTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
