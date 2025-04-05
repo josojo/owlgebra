@@ -81,13 +81,15 @@ const parseTheorem = (leanCode) => {
     }
   }
 
+  let goal = "";
   // Throw an error if the proof start symbol ':=' is not found at the top level
   if (proofStartIndex === -1) {
-    throw new Error('Invalid theorem format: missing proof start (:=) at the correct bracket level');
+    goal = goalSection.trim();
+    // throw new Error('Invalid theorem format: missing proof start (:=) at the correct bracket level');
+  } else {
+    // Extract the goal by taking the substring before the identified ':=' and trimming whitespace
+    goal = goalSection.substring(0, proofStartIndex).trim();
   }
-
-  // Extract the goal by taking the substring before the identified ':=' and trimming whitespace
-  let goal = goalSection.substring(0, proofStartIndex).trim();
 
   return {
     theoremTitle,

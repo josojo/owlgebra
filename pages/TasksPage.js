@@ -474,7 +474,7 @@ export default function TasksPage() {
                   name="lean"
                   className="finalproven super-compact-code"
                 >
-                  {result.proof}
+                  {result.proof.split('\n').filter(line => line.trim() !== '').join('\n')}
                 </Code>
               </div>
             )}
@@ -484,16 +484,23 @@ export default function TasksPage() {
               <div className="result-section">
                 <h4>Theoretical Hypotheses</h4>
                 <div className="hypotheses-grid">
-                  {result.theoretical_hypotheses.map((hypothesis, index) => (
-                    <Code 
-                      key={index} 
-                      block 
-                      name="lean"
-                      className="theoretical super-compact-code"
-                    >
-                      {hypothesis}
-                    </Code>
-                  ))}
+                  {result.theoretical_hypotheses.map((hyp, index) => {
+                    // Combine hypothesis and proof, handling cases where proof might be null/empty
+                    const combinedContent = `${hyp.assumptions.join(' ')} ${hyp.statement}${hyp.proof ? '\n\n' + hyp.proof : ''}`;
+                    // Remove empty lines from the combined content
+                    const cleanedContent = combinedContent.split('\n').filter(line => line.trim() !== '').join('\n');
+                    
+                    return (
+                      <Code 
+                        key={index} 
+                        block 
+                        name="lean"
+                        className="theoretical super-compact-code"
+                      >
+                        {cleanedContent}
+                      </Code>
+                    );
+                })} 
                 </div>
               </div>
             )}
@@ -503,16 +510,23 @@ export default function TasksPage() {
               <div className="result-section">
                 <h4>Proven Hypotheses</h4>
                 <div className="hypotheses-grid">
-                  {result.proven_hypotheses.map((hyp, index) => (
-                    <Code 
-                      key={index} 
-                      block 
-                      name="lean"
-                      className="proven super-compact-code"
-                    >
-                      {`${hyp.hypothesis}${hyp.proof ? '\n\n' + hyp.proof : ''}`}
-                    </Code>
-                  ))}
+                  {result.proven_hypotheses.map((hyp, index) => {
+                    // Combine hypothesis and proof, handling cases where proof might be null/empty
+                    const combinedContent = `${hyp.assumptions.join(' ')} ${hyp.statement}${hyp.proof ? '\n\n' + hyp.proof : ''}`;
+                    // Remove empty lines from the combined content
+                    const cleanedContent = combinedContent.split('\n').filter(line => line.trim() !== '').join('\n');
+                    
+                    return (
+                      <Code 
+                        key={index} 
+                        block 
+                        name="lean"
+                        className="proven super-compact-code"
+                      >
+                        {cleanedContent}
+                      </Code>
+                    );
+                  })}
                 </div>
               </div>
             )}

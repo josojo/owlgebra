@@ -67,7 +67,7 @@ theorem with_imports (n : ℕ) : n = n := by`;
   });
 
   test('handles complex goals with parentheses', () => {
-    const input = 'theorem complex (n : ℕ) : (n + 1) * (n - 1) = n^2 - 1 := by';
+    const input = 'theorem complex (n : ℕ) : (n + 1) * (n - 1) = n^2 - 1';
     
     const result = parseTheorem(input);
     
@@ -109,6 +109,19 @@ theorem example_theorem (n : ℕ) (oh0 : 0 < n) : Nat.gcd (21*n + 4) (14*n + 3) 
       goal: 'Nat.gcd (21*n + 4) (14*n + 3) = 1'
     });
   });
+  // todo:
+//   test('handles complex theorem with sorry example', () => {
+//     const input = `import Mathlib\n theorem bolton_example: {σ R A B : Type*} [CommSemiring R] [CommSemiring A] [CommSemiring B] [Algebra R A] [Algebra R B] (p : MvPolynomial σ R) (f : A →ₐ[R] B) (a : σ -> A) : f (eval₂ (algebraMap R A) a p) = eval₂ (algebraMap R B) (f ∘ a) p`;
+    
+//     const result = parseTheorem(input);
+    
+//     expect(result).toEqual({
+//       theoremTitle: 'bolton_example',
+//       env0code: 'import Mathlib',
+//       hypotheses: ['{σ R A B : Type*} [CommSemiring R] [CommSemiring A] [CommSemiring B] [Algebra R A] [Algebra R B] (p : MvPolynomial σ R) (f : A →ₐ[R] B) (a : σ -> A)'],
+//       goal: 'f (eval₂ (algebraMap R A) a p) = eval₂ (algebraMap R B) (f ∘ a) p'
+//     });
+//   });
   test('handles complex theorem with := example', () => {
     const input = `import Mathlib
 
