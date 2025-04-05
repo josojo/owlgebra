@@ -465,6 +465,20 @@ export default function TasksPage() {
               </div>
             )}
 
+            {/* Final Proof Section */}
+            {result.proof && (
+              <div className="result-section">
+                <h4>Final Proof</h4>
+                <Code
+                  block
+                  name="lean"
+                  className="finalproven super-compact-code"
+                >
+                  {result.proof}
+                </Code>
+              </div>
+            )}
+
             {/* Theoretical Hypotheses Section */}
             {result.theoretical_hypotheses && result.theoretical_hypotheses.length > 0 && (
               <div className="result-section">
