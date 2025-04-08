@@ -1,16 +1,19 @@
 const parseTheorem = (leanCode) => {
-  // Split the code into lines and clean them
-  const lines = leanCode.split('\n').map(line => line.trim());
+  // Split the code into lines WITHOUT trimming them initially
+  const lines = leanCode.split('\n');
   
-  // Find theorem line and subsequent lines until we hit a goal marker (:)
-  const theoremStartIndex = lines.findIndex(line => line.startsWith('theorem'));
+  // Find theorem line index
+  // Note: We still trim here just for the check, but use the original lines later
+  const theoremStartIndex = lines.findIndex(line => line.trim().startsWith('theorem'));
   if (theoremStartIndex === -1) throw new Error('No theorem declaration found');
 
-  // Get code before theorem
-  const env0code = lines.slice(0, theoremStartIndex).join('\n').trim();
+  // Get code before theorem, joining the original lines WITHOUT trimming the final result
+  const env0code = lines.slice(0, theoremStartIndex).join('\n');
 
-  // Combine all lines from theorem start until the end into a single string
-  const theoremText = lines.slice(theoremStartIndex).join(' ');
+  // Combine all lines from theorem start onwards for further parsing
+  // We still trim individual lines here as whitespace within the theorem declaration
+  // itself is less likely to be significant for parsing name, hypotheses, goal.
+  const theoremText = lines.slice(theoremStartIndex).map(line => line.trim()).join(' ');
 
   // Parse theorem name
   const theoremMatch = theoremText.match(/theorem\s+(\w+)/);
@@ -49,12 +52,36 @@ const parseTheorem = (leanCode) => {
       parenCount--;
       currentHypothesis += char;
       if (parenCount === 0 && currentHypothesis.trim()) {
+        // Trim individual hypothesis before pushing
         hypotheses.push(currentHypothesis.trim());
         currentHypothesis = '';
       }
-    } else if (parenCount > 0) {
-      currentHypothesis += char;
+    } else if (parenCount > 0 || (parenCount === 0 && char !== ' ' && currentHypothesis === '')) {
+       // Capture characters within parentheses OR the start of a hypothesis outside parentheses
+       currentHypothesis += char;
+    } else if (parenCount === 0 && currentHypothesis !== '' && char === ' ') {
+      // If outside parentheses and we have content, check if it's just whitespace between hypotheses
+      // If the next non-whitespace is '(', assume it's the start of the next hypothesis
+      let nextCharIndex = i + 1;
+      while(nextCharIndex < hypothesesSection.length && hypothesesSection[nextCharIndex] === ' ') {
+        nextCharIndex++;
+      }
+      if (nextCharIndex < hypothesesSection.length && hypothesesSection[nextCharIndex] === '(') {
+         // End of current hypothesis found
+         hypotheses.push(currentHypothesis.trim());
+         currentHypothesis = '';
+         i = nextCharIndex - 1; // Adjust loop index to start next hypothesis correctly
+      } else {
+         currentHypothesis += char; // Continue current hypothesis
+      }
+    } else if (parenCount === 0 && currentHypothesis !== '') {
+       // Continue capturing hypothesis content outside parentheses
+       currentHypothesis += char;
     }
+  }
+  // Add any remaining hypothesis part if loop finishes
+  if (currentHypothesis.trim()) {
+     hypotheses.push(currentHypothesis.trim());
   }
 
   // Get goal - everything after the colon but before the correct :=
@@ -85,6 +112,7 @@ const parseTheorem = (leanCode) => {
   // Throw an error if the proof start symbol ':=' is not found at the top level
   if (proofStartIndex === -1) {
     goal = goalSection.trim();
+    // Consider if an error should be thrown if ':=' is expected but missing
     // throw new Error('Invalid theorem format: missing proof start (:=) at the correct bracket level');
   } else {
     // Extract the goal by taking the substring before the identified ':=' and trimming whitespace
